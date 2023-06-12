@@ -13,7 +13,7 @@
 
 using Expr =
     std::variant<const struct AssignExpr *, const struct BinaryExpr *,
-                 struct CallExpr *, const struct GroupingExpr *,
+                 const struct CallExpr *, const struct GroupingExpr *,
                  const struct LiteralExpr *, const struct LogicalExpr *,
                  const struct UnaryExpr *, const struct VariableExpr *>;
 
