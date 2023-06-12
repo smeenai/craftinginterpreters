@@ -1,6 +1,7 @@
 #include "AstPrinter.h"
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <variant>
 
@@ -17,7 +18,14 @@ std::string AstPrinter::operator()(const GroupingExpr *expr) {
 
 std::string AstPrinter::operator()(const LiteralExpr *expr) {
   static struct {
-    std::string operator()(double d) { return std::to_string(d); }
+    std::string operator()(double d) {
+      // Going this route instead of directly using std::string to avoid
+      // unnecessary decimal places.
+      std::ostringstream stream;
+      stream << d;
+      return stream.str();
+    }
+
     std::string operator()(std::string_view s) { return std::string(s); }
     std::string operator()(bool b) { return b ? "true" : "false"; }
     std::string operator()(std::nullptr_t) { return "nil"; }
