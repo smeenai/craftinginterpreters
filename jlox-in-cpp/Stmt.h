@@ -6,7 +6,8 @@
 
 // See Expr.h for why we use std::variant instead of a class hierarchy.
 
-using Stmt = std::variant<struct ExpressionStmt *, struct PrintStmt *>;
+using Stmt =
+    std::variant<const struct ExpressionStmt *, const struct PrintStmt *>;
 
 struct ExpressionStmt {
   const Expr expr;
