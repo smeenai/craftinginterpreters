@@ -32,6 +32,8 @@ public:
 
   Value operator()(const LiteralExpr *expr);
   Value operator()(const LogicalExpr *expr);
+  Value operator()(const GetExpr *expr);
+  Value operator()(const SetExpr *expr);
   Value operator()(const GroupingExpr *expr);
   Value operator()(const UnaryExpr *expr);
   Value operator()(const VariableExpr *expr);

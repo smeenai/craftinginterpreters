@@ -1,0 +1,14 @@
+class C {}
+var c = C();
+c.i = 1;
+c.s = "hello";
+c.c = c;
+print c.i;
+print c.s;
+print c.c;
+print c.c.i;
+print c.c.s;
+print c.c.c; // A sailor went to sea, sea, sea
+print c.c.c.i;
+print c.c.c.s;
+print c.c.c.c;

@@ -104,6 +104,25 @@ Value Interpreter::operator()(const LogicalExpr *expr) {
   return std::visit(*this, expr->right);
 }
 
+Value Interpreter::operator()(const GetExpr *expr) {
+  Value object = std::visit(*this, expr->object);
+  if (auto *instance = std::get_if<std::shared_ptr<LoxInstance>>(&object))
+    return (*instance)->get(expr->name);
+
+  throw RuntimeError(expr->name, "Only instances have properties.");
+}
+
+Value Interpreter::operator()(const SetExpr *expr) {
+  Value object = std::visit(*this, expr->object);
+  auto *instance = std::get_if<std::shared_ptr<LoxInstance>>(&object);
+  if (!instance)
+    throw RuntimeError(expr->name, "Only instances have fields.");
+
+  Value value = std::visit(*this, expr->value);
+  (*instance)->set(expr->name, value);
+  return value;
+}
+
 Value Interpreter::operator()(const GroupingExpr *expr) {
   return std::visit(*this, expr->expr);
 }

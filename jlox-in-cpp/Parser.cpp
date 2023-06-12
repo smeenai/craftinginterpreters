@@ -200,6 +200,9 @@ Expr Parser::assignment() {
             std::get_if<const VariableExpr *>(&expr))
       return makeExpr<AssignExpr>((*variableExpr)->name, value);
 
+    if (const GetExpr **getExpr = std::get_if<const GetExpr *>(&expr))
+      return makeExpr<SetExpr>((*getExpr)->object, (*getExpr)->name, value);
+
     error(equals, "Invalid assignment target.");
   }
 
@@ -263,10 +266,15 @@ Expr Parser::call() {
   Expr expr = primary();
 
   while (true) {
-    if (match({TokenType::LEFT_PAREN}))
+    if (match({TokenType::LEFT_PAREN})) {
       expr = finishCall(expr);
-    else
+    } else if (match({TokenType::DOT})) {
+      const Token &name =
+          consume(TokenType::IDENTIFIER, "Expect property name after '.'.");
+      expr = makeExpr<GetExpr>(expr, name);
+    } else {
       break;
+    }
   }
 
   return expr;

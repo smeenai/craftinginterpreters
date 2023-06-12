@@ -24,6 +24,10 @@ std::string AstPrinter::operator()(const CallExpr *expr) {
   return str;
 }
 
+std::string AstPrinter::operator()(const GetExpr *expr) {
+  return std::visit(*this, expr->object) + "." + std::string(expr->name.lexeme);
+}
+
 std::string AstPrinter::operator()(const GroupingExpr *expr) {
   return parenthesize("group", {expr->expr});
 }
@@ -47,6 +51,12 @@ std::string AstPrinter::operator()(const LiteralExpr *expr) {
 
 std::string AstPrinter::operator()(const LogicalExpr *expr) {
   return parenthesize(expr->op.lexeme, {expr->left, expr->right});
+}
+
+std::string AstPrinter::operator()(const SetExpr *expr) {
+  return std::visit(*this, expr->object) + "." +
+         std::string(expr->name.lexeme) + " = " +
+         std::visit(*this, expr->value);
 }
 
 std::string AstPrinter::operator()(const UnaryExpr *expr) {

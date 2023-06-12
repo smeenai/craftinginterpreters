@@ -76,6 +76,10 @@ void Resolver::operator()(const CallExpr *expr) {
     std::visit(*this, argument);
 }
 
+void Resolver::operator()(const GetExpr *expr) {
+  std::visit(*this, expr->object);
+}
+
 void Resolver::operator()(const GroupingExpr *expr) {
   std::visit(*this, expr->expr);
 }
@@ -85,6 +89,11 @@ void Resolver::operator()(const LiteralExpr *) {}
 void Resolver::operator()(const LogicalExpr *expr) {
   std::visit(*this, expr->left);
   std::visit(*this, expr->right);
+}
+
+void Resolver::operator()(const SetExpr *expr) {
+  std::visit(*this, expr->value);
+  std::visit(*this, expr->object);
 }
 
 void Resolver::operator()(const UnaryExpr *expr) {

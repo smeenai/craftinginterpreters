@@ -13,8 +13,9 @@
 
 using Expr =
     std::variant<const struct AssignExpr *, const struct BinaryExpr *,
-                 const struct CallExpr *, const struct GroupingExpr *,
-                 const struct LiteralExpr *, const struct LogicalExpr *,
+                 const struct CallExpr *, const struct GetExpr *,
+                 const struct GroupingExpr *, const struct LiteralExpr *,
+                 const struct LogicalExpr *, const struct SetExpr *,
                  const struct UnaryExpr *, const struct VariableExpr *>;
 
 struct AssignExpr {
@@ -34,6 +35,11 @@ struct CallExpr {
   const std::vector<Expr> arguments;
 };
 
+struct GetExpr {
+  const Expr object;
+  const Token &name;
+};
+
 struct GroupingExpr {
   const Expr expr;
 };
@@ -46,6 +52,12 @@ struct LogicalExpr {
   const Expr left;
   const Token &op;
   const Expr right;
+};
+
+struct SetExpr {
+  const Expr object;
+  const Token &name;
+  const Expr value;
 };
 
 struct UnaryExpr {
