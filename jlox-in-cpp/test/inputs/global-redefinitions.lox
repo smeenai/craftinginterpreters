@@ -1,0 +1,5 @@
+var a = "world";
+var a = "hello";
+fun f() { return " hello"; }
+fun f() { return " world"; }
+print a + f();

@@ -1,0 +1,6 @@
+{
+    var a = "hello";
+    var a = "world";
+    fun f() { return "hello"; }
+    fun f() { return "world"; }
+}
