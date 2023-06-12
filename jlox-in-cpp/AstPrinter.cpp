@@ -59,6 +59,10 @@ std::string AstPrinter::operator()(const SetExpr *expr) {
          std::visit(*this, expr->value);
 }
 
+std::string AstPrinter::operator()(const SuperExpr *expr) {
+  return "super." + std::string(expr->method.lexeme);
+}
+
 std::string AstPrinter::operator()(const ThisExpr *) { return "this"; }
 
 std::string AstPrinter::operator()(const UnaryExpr *expr) {

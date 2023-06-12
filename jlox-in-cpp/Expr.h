@@ -16,8 +16,8 @@ using Expr =
                  const struct CallExpr *, const struct GetExpr *,
                  const struct GroupingExpr *, const struct LiteralExpr *,
                  const struct LogicalExpr *, const struct SetExpr *,
-                 const struct ThisExpr *, const struct UnaryExpr *,
-                 const struct VariableExpr *>;
+                 const struct SuperExpr *, const struct ThisExpr *,
+                 const struct UnaryExpr *, const struct VariableExpr *>;
 
 struct AssignExpr {
   const Token &name;
@@ -59,6 +59,11 @@ struct SetExpr {
   const Expr object;
   const Token &name;
   const Expr value;
+};
+
+struct SuperExpr {
+  const Token &keyword;
+  const Token &method;
 };
 
 struct ThisExpr {

@@ -31,6 +31,7 @@ public:
   void operator()(const LiteralExpr *expr);
   void operator()(const LogicalExpr *expr);
   void operator()(const SetExpr *expr);
+  void operator()(const SuperExpr *expr);
   void operator()(const ThisExpr *expr);
   void operator()(const UnaryExpr *expr);
   void operator()(const VariableExpr *expr);
@@ -42,6 +43,7 @@ private:
   enum class ClassType {
     NONE,
     CLASS,
+    SUBCLASS,
   };
 
   ClassType currentClass = ClassType::NONE;
@@ -57,13 +59,20 @@ private:
 
   class ScopeGuard {
   public:
-    [[nodiscard]] ScopeGuard(Resolver &resolver) : resolver(resolver) {
-      resolver.scopes.emplace_back();
+    [[nodiscard]] ScopeGuard(Resolver &resolver, bool condition = true)
+        : resolver(resolver), condition(condition) {
+      if (condition)
+        resolver.scopes.emplace_back();
     }
-    ~ScopeGuard() { resolver.scopes.pop_back(); }
+
+    ~ScopeGuard() {
+      if (condition)
+        resolver.scopes.pop_back();
+    }
 
   private:
     Resolver &resolver;
+    bool condition;
   };
 
   template <class T> class SaveAndRestore {

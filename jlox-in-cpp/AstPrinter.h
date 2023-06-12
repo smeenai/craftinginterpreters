@@ -15,6 +15,7 @@ public:
   std::string operator()(const LiteralExpr *expr);
   std::string operator()(const LogicalExpr *expr);
   std::string operator()(const SetExpr *expr);
+  std::string operator()(const SuperExpr *expr);
   std::string operator()(const ThisExpr *expr);
   std::string operator()(const UnaryExpr *expr);
   std::string operator()(const VariableExpr *expr);

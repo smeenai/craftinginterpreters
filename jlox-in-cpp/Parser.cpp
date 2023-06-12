@@ -321,6 +321,14 @@ Expr Parser::primary() {
   if (match({TokenType::NUMBER, TokenType::STRING}))
     return std::visit(literalVisitor, previous().literal);
 
+  if (match({TokenType::SUPER})) {
+    const Token &keyword = previous();
+    consume(TokenType::DOT, "Expect '.' after 'super'.");
+    const Token &method =
+        consume(TokenType::IDENTIFIER, "Expect superclass method name.");
+    return makeExpr<SuperExpr>(keyword, method);
+  }
+
   if (match({TokenType::THIS}))
     return makeExpr<ThisExpr>(previous());
 

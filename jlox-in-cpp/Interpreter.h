@@ -33,6 +33,7 @@ public:
   Value operator()(const LogicalExpr *expr);
   Value operator()(const GetExpr *expr);
   Value operator()(const SetExpr *expr);
+  Value operator()(const SuperExpr *expr);
   Value operator()(const ThisExpr *expr);
   Value operator()(const GroupingExpr *expr);
   Value operator()(const UnaryExpr *expr);
@@ -68,7 +69,8 @@ private:
     [[nodiscard]] EnvironmentGuard(Interpreter &interpreter,
                                    std::shared_ptr<Environment> &&newEnv)
         : interpreter(interpreter), oldEnv(std::move(interpreter.environment)) {
-      interpreter.environment = std::move(newEnv);
+      if (newEnv)
+        interpreter.environment = std::move(newEnv);
     }
 
     ~EnvironmentGuard() { interpreter.environment = std::move(oldEnv); }

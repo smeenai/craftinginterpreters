@@ -43,8 +43,9 @@ void Interpreter::operator()(const BlockStmt *stmt) {
 
 void Interpreter::operator()(const ClassStmt *stmt) {
   std::shared_ptr<const LoxClass> superclass;
+  Value superclassValue = nullptr;
   if (stmt->superclass) {
-    Value superclassValue = (*this)(stmt->superclass);
+    superclassValue = (*this)(stmt->superclass);
     if (auto *superclassCallable =
             std::get_if<std::shared_ptr<const LoxCallable>>(&superclassValue))
       superclass =
@@ -56,12 +57,20 @@ void Interpreter::operator()(const ClassStmt *stmt) {
   environment->define(stmt->name.lexeme, nullptr);
 
   std::unordered_map<std::string_view, LoxFunction> methods;
-  for (const FunctionStmt *method : stmt->methods)
-    methods.emplace(method->name.lexeme,
-                    LoxFunction(*method, environment,
-                                method->name.lexeme == "init"
-                                    ? FunctionType::INITIALIZER
-                                    : FunctionType::NOT_INITIALIZER));
+  {
+    EnvironmentGuard superGuard(*this, nullptr);
+    if (stmt->superclass) {
+      environment = std::make_shared<Environment>(environment);
+      environment->define("super", superclassValue);
+    }
+
+    for (const FunctionStmt *method : stmt->methods)
+      methods.emplace(method->name.lexeme,
+                      LoxFunction(*method, environment,
+                                  method->name.lexeme == "init"
+                                      ? FunctionType::INITIALIZER
+                                      : FunctionType::NOT_INITIALIZER));
+  }
 
   environment->assign(stmt->name, std::make_shared<const LoxClass>(
                                       stmt->name.lexeme, std::move(superclass),
@@ -145,6 +154,23 @@ Value Interpreter::operator()(const SetExpr *expr) {
   Value value = std::visit(*this, expr->value);
   (*instance)->set(expr->name, value);
   return value;
+}
+
+Value Interpreter::operator()(const SuperExpr *expr) {
+  unsigned distance = locals.at(expr);
+  const LoxClass &superclass = dynamic_cast<const LoxClass &>(
+      *std::get<std::shared_ptr<const LoxCallable>>(
+          environment->getAt(distance, "super")));
+  Value thisValue = environment->getAt(distance - 1, "this");
+  const auto &object = std::get<std::shared_ptr<LoxInstance>>(thisValue);
+
+  const LoxFunction *method = superclass.findMethod(expr->method.lexeme);
+  if (!method)
+    throw RuntimeError(expr->method, "Undefined property '" +
+                                         std::string(expr->method.lexeme) +
+                                         "'.");
+
+  return method->bind(object);
 }
 
 Value Interpreter::operator()(const ThisExpr *expr) {
