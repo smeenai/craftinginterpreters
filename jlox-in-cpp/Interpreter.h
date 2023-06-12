@@ -5,6 +5,7 @@
 #include <string_view>
 #include <vector>
 
+#include "Environment.h"
 #include "Expr.h"
 #include "Stmt.h"
 #include "Value.h"
@@ -15,13 +16,17 @@ public:
 
   void operator()(const ExpressionStmt *stmt);
   void operator()(const PrintStmt *stmt);
+  void operator()(const VarStmt *stmt);
 
   Value operator()(const LiteralExpr *expr);
   Value operator()(const GroupingExpr *expr);
   Value operator()(const UnaryExpr *expr);
+  Value operator()(const VariableExpr *expr);
   Value operator()(const BinaryExpr *expr);
 
 private:
+  Environment environment;
+
   static bool isTruthy(Value value);
   static void checkNumberOperand(const Token &token, Value value);
   static void checkNumberOperands(const Token &token, Value left, Value right);

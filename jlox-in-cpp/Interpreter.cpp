@@ -25,6 +25,13 @@ void Interpreter::operator()(const PrintStmt *stmt) {
   std::cout << value << "\n";
 }
 
+void Interpreter::operator()(const VarStmt *stmt) {
+  Value value = nullptr;
+  if (stmt->initializer)
+    value = std::visit(*this, *stmt->initializer);
+  environment.define(stmt->name.lexeme, value);
+}
+
 Value Interpreter::operator()(const LiteralExpr *expr) {
   return std::visit([](auto &&v) -> Value { return v; }, expr->value);
 }
@@ -47,6 +54,10 @@ Value Interpreter::operator()(const UnaryExpr *expr) {
   default:
     __builtin_unreachable();
   }
+}
+
+Value Interpreter::operator()(const VariableExpr *expr) {
+  return environment.get(expr->name);
 }
 
 Value Interpreter::operator()(const BinaryExpr *expr) {

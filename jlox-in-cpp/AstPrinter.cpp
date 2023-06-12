@@ -37,6 +37,10 @@ std::string AstPrinter::operator()(const UnaryExpr *expr) {
   return parenthesize(expr->op.lexeme, {expr->right});
 }
 
+std::string AstPrinter::operator()(const VariableExpr *expr) {
+  return std::string(expr->name.lexeme);
+}
+
 std::string AstPrinter::parenthesize(std::string_view name,
                                      std::initializer_list<Expr> exprs) {
   std::string str("(");
