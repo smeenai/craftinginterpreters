@@ -8,9 +8,10 @@
 
 // See Expr.h for why we use std::variant instead of a class hierarchy.
 
-using Stmt = std::variant<const struct BlockStmt *,
-                          const struct ExpressionStmt *, const struct IfStmt *,
-                          const struct PrintStmt *, const struct VarStmt *>;
+using Stmt =
+    std::variant<const struct BlockStmt *, const struct ExpressionStmt *,
+                 const struct IfStmt *, const struct PrintStmt *,
+                 const struct VarStmt *, const struct WhileStmt *>;
 
 struct BlockStmt {
   const std::vector<Stmt> statements;
@@ -33,4 +34,9 @@ struct PrintStmt {
 struct VarStmt {
   const Token &name;
   const std::optional<Expr> initializer;
+};
+
+struct WhileStmt {
+  const Expr condition;
+  const Stmt body;
 };

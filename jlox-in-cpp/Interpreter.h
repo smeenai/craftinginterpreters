@@ -19,6 +19,7 @@ public:
   void operator()(const IfStmt *stmt);
   void operator()(const PrintStmt *stmt);
   void operator()(const VarStmt *stmt);
+  void operator()(const WhileStmt *stmt);
 
   Value operator()(const LiteralExpr *expr);
   Value operator()(const LogicalExpr *expr);
