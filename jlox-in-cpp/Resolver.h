@@ -35,6 +35,13 @@ private:
   Interpreter &interpreter;
   std::vector<std::unordered_map<std::string_view, bool>> scopes;
 
+  enum class FunctionType {
+    NONE,
+    FUNCTION,
+  };
+
+  FunctionType currentFunction = FunctionType::NONE;
+
   class ScopeGuard {
   public:
     [[nodiscard]] ScopeGuard(Resolver &resolver) : resolver(resolver) {
@@ -46,9 +53,22 @@ private:
     Resolver &resolver;
   };
 
+  template <class T> class SaveAndRestore {
+  public:
+    [[nodiscard]] SaveAndRestore(T &location, T value)
+        : location(location), saved(location) {
+      location = value;
+    }
+    ~SaveAndRestore() { location = saved; }
+
+  private:
+    T &location;
+    T saved;
+  };
+
   void declare(const Token &name);
   void define(const Token &name);
 
   void resolveLocal(Expr expr, const Token &name);
-  void resolveFunction(const FunctionStmt *function);
+  void resolveFunction(const FunctionStmt *function, FunctionType type);
 };
