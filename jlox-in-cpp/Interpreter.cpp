@@ -17,11 +17,12 @@ void Interpreter::interpret(const std::vector<Stmt> &statements) {
 }
 
 void Interpreter::operator()(const BlockStmt *stmt) {
-  executeBlock(stmt->statements);
+  executeBlock(stmt->statements, std::make_shared<Environment>(environment));
 }
 
-void Interpreter::executeBlock(const std::vector<Stmt> &statements) {
-  Environment::ScopeGuard scopeGuard = environment.addScope();
+void Interpreter::executeBlock(const std::vector<Stmt> &statements,
+                               std::shared_ptr<Environment> &&env) {
+  EnvironmentGuard envGuard(*this, std::move(env));
   for (Stmt stmt : statements)
     std::visit(*this, stmt);
 }
@@ -46,7 +47,7 @@ void Interpreter::operator()(const VarStmt *stmt) {
   Value value = nullptr;
   if (stmt->initializer)
     value = std::visit(*this, *stmt->initializer);
-  environment.define(stmt->name.lexeme, value);
+  environment->define(stmt->name.lexeme, value);
 }
 
 void Interpreter::operator()(const WhileStmt *stmt) {
@@ -86,12 +87,12 @@ Value Interpreter::operator()(const UnaryExpr *expr) {
 }
 
 Value Interpreter::operator()(const VariableExpr *expr) {
-  return environment.get(expr->name);
+  return environment->get(expr->name);
 }
 
 Value Interpreter::operator()(const AssignExpr *expr) {
   Value value = std::visit(*this, expr->value);
-  environment.assign(expr->name, value);
+  environment->assign(expr->name, value);
   return value;
 }
 
