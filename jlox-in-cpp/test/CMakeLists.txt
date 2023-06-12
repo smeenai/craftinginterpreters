@@ -17,7 +17,7 @@ foreach(test IN LISTS test_inputs)
     COMMAND ${CMAKE_CURRENT_LIST_DIR}/runner $<TARGET_FILE:jlox-in-cpp> ${test}
     )
   set_tests_properties(${test_stem} PROPERTIES FIXTURES_REQUIRED test_fixture)
-  if(NOT test MATCHES "\.norepl\.")
+  if(NOT test MATCHES "\.(norepl|parseerror|runtimeerror)\.")
     add_test(
       NAME ${test_stem}-repl
       COMMAND ${CMAKE_CURRENT_LIST_DIR}/runner $<TARGET_FILE:jlox-in-cpp> ${test} repl
