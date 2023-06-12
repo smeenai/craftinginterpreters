@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+interpreter="${1}"
+input="${2}"
+use_repl="${3:-}"
+
+errexit() {
+    echo >&2 "${1}"
+    exit 1
+}
+
+here="$(dirname "${0}")"
+input_file="${here}/inputs/${input}"
+output_file="${here}/outputs/${input%%.*}"
+[[ -f "${input_file}" ]] || errexit "Non-existent input ${input_file}"
+[[ -f "${output_file}" ]] || errexit "Non-existent output ${output_file}"
+
+interpreter_output="$(mktemp)"
+if [[ "${use_repl}" == repl ]]; then
+    "${interpreter}" < "${here}/inputs/${input}" > "${interpreter_output}"
+else
+    "${interpreter}" "${here}/inputs/${input}" > "${interpreter_output}"
+fi
+
+git diff --color --no-index --text --src-prefix=/ --dst-prefix=/ \
+    "${output_file}" "${interpreter_output}" && rm -f "${interpreter_output}"

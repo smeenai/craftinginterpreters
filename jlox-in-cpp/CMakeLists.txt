@@ -61,3 +61,7 @@ target_compile_definitions(
   PRIVATE
   AST_PRINTER_STANDALONE
   )
+
+set(CMAKE_CTEST_ARGUMENTS --output-on-failure)
+include(CTest)
+add_subdirectory(test)
