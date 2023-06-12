@@ -74,5 +74,14 @@ struct Token {
   Token(TokenType type, std::string_view lexeme, double literal, int line)
       : type(type), line(line), lexeme(lexeme), literal(literal) {}
 
+  // Tokens are on the larger side, so prevent inadvertent copies until we find
+  // an actual necessity.
+  Token(const Token &) = delete;
+  Token &operator=(const Token &) = delete;
+
+  // We do need to be able to move construct them though.
+  Token(Token &&) = default;
+  // No move assignment because of the const fields, and it's not needed anyway.
+
   friend std::ostream &operator<<(std::ostream &o, const Token &token);
 };
