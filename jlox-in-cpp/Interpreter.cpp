@@ -43,7 +43,8 @@ void Interpreter::operator()(const ExpressionStmt *stmt) {
 }
 
 void Interpreter::operator()(const FunctionStmt *stmt) {
-  environment->define(stmt->name.lexeme, std::make_shared<LoxFunction>(*stmt));
+  environment->define(stmt->name.lexeme,
+                      std::make_shared<LoxFunction>(*stmt, environment));
 }
 
 void Interpreter::operator()(const IfStmt *stmt) {

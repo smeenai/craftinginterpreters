@@ -45,9 +45,6 @@ private:
   std::shared_ptr<Environment> environment = std::make_shared<Environment>();
   Environment &globals = *environment;
 
-  // TODO: Remove this once LoxFunction doesn't use globals
-  friend class LoxFunction;
-
   class EnvironmentGuard {
   public:
     [[nodiscard]] EnvironmentGuard(Interpreter &interpreter,

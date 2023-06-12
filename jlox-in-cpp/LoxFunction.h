@@ -5,13 +5,15 @@
 
 class LoxFunction : public LoxCallable {
 public:
-  LoxFunction(const FunctionStmt &declaration) : declaration(declaration) {}
+  LoxFunction(const FunctionStmt &declaration,
+              const std::shared_ptr<Environment> &closure)
+      : declaration(declaration), closure(closure) {}
 
   size_t arity() const override { return declaration.params.size(); }
 
   Value call(Interpreter &interpreter,
              const std::vector<Value> &arguments) const override {
-    auto env = std::make_shared<Environment>(interpreter.globals);
+    auto env = std::make_shared<Environment>(closure);
     for (size_t i = 0; i < declaration.params.size(); ++i)
       env->define(declaration.params[i].get().lexeme, arguments[i]);
 
@@ -30,4 +32,5 @@ public:
 
 private:
   const FunctionStmt &declaration;
+  const std::shared_ptr<Environment> closure;
 };
