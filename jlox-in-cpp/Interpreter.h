@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <deque>
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -45,8 +46,21 @@ public:
   void executeBlock(const std::vector<Stmt> &statements,
                     std::shared_ptr<Environment> &&env);
 
-  struct Return {
-    Value value;
+  class ReturnStackGuard {
+  public:
+    [[nodiscard]] ReturnStackGuard(Interpreter &interpreter)
+        : interpreter(interpreter) {
+      interpreter.returnStack.emplace_back();
+    }
+
+    ~ReturnStackGuard() { interpreter.returnStack.pop_back(); }
+
+    const std::optional<Value> &peek() {
+      return interpreter.returnStack.back();
+    }
+
+  private:
+    Interpreter &interpreter;
   };
 
   // Own all tokens and AST nodes to avoid any lifetime issues.
@@ -58,6 +72,8 @@ private:
   std::shared_ptr<Environment> environment = std::make_shared<Environment>();
   Environment &globals = *environment;
   std::unordered_map<Expr, unsigned> locals;
+
+  std::vector<std::optional<Value>> returnStack = {{}};
 
   // A vector of vectors would be okay, since the inner vectors should be moved
   // instead of copied when resizing the outer vector (thus preserving

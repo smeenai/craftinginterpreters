@@ -35,13 +35,11 @@ public:
     for (size_t i = 0; i < declaration.params.size(); ++i)
       env->define(declaration.params[i].get().lexeme, arguments[i]);
 
-    try {
-      interpreter.executeBlock(declaration.body, std::move(env));
-    } catch (const Interpreter::Return &returnValue) {
-      return isInitializer ? closure->getAt(0, "this") : returnValue.value;
-    }
-
-    return isInitializer ? closure->getAt(0, "this") : nullptr;
+    Interpreter::ReturnStackGuard returnStackGuard(interpreter);
+    interpreter.executeBlock(declaration.body, std::move(env));
+    if (isInitializer)
+      return closure->getAt(0, "this");
+    return returnStackGuard.peek() ? *returnStackGuard.peek() : nullptr;
   }
 
   std::string str() const override {

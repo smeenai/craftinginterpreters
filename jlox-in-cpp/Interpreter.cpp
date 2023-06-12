@@ -13,10 +13,6 @@
 #include "RuntimeError.h"
 #include "Token.h"
 
-struct Return {
-  Value value;
-};
-
 Interpreter::Interpreter() {
   globals.define("clock", std::make_shared<ClockFunction>());
 }
@@ -80,8 +76,11 @@ void Interpreter::operator()(const ClassStmt *stmt) {
 void Interpreter::executeBlock(const std::vector<Stmt> &statements,
                                std::shared_ptr<Environment> &&env) {
   EnvironmentGuard envGuard(*this, std::move(env));
-  for (Stmt stmt : statements)
+  for (Stmt stmt : statements) {
     std::visit(*this, stmt);
+    if (returnStack.back())
+      return;
+  }
 }
 
 void Interpreter::operator()(const ExpressionStmt *stmt) {
@@ -111,7 +110,7 @@ void Interpreter::operator()(const ReturnStmt *stmt) {
   if (stmt->value)
     value = std::visit(*this, *stmt->value);
 
-  throw Return{value};
+  returnStack.back() = value;
 }
 
 void Interpreter::operator()(const VarStmt *stmt) {
@@ -122,8 +121,11 @@ void Interpreter::operator()(const VarStmt *stmt) {
 }
 
 void Interpreter::operator()(const WhileStmt *stmt) {
-  while (isTruthy(std::visit(*this, stmt->condition)))
+  while (isTruthy(std::visit(*this, stmt->condition))) {
     std::visit(*this, stmt->body);
+    if (returnStack.back())
+      return;
+  }
 }
 
 Value Interpreter::operator()(const LiteralExpr *expr) {
