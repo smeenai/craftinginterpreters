@@ -1,41 +1,4 @@
-cmake_minimum_required(VERSION 3.20.0)
-project(jlox-in-cpp CXX)
-
-function(set_target_flags target)
-  set_target_properties(
-    ${target}
-    PROPERTIES
-    CXX_EXTENSIONS OFF
-    CXX_STANDARD 20
-    CXX_STANDARD_REQUIRED ON
-    )
-
-  target_compile_options(
-    ${target}
-    PRIVATE
-    -fcolor-diagnostics # https://github.com/ninja-build/ninja/issues/174
-    -Wall
-    -Werror
-    -Wextra
-    -Wmissing-prototypes
-    )
-
-  if(ENABLE_SANITIZERS)
-    # Should be paired with a RelWithDefInfo build
-    target_compile_options(
-      ${target}
-      PRIVATE
-      -O1 # lesser chances of UB hiding issues
-      -UNDEBUG # enable assertions
-      -fsanitize=address,undefined
-      )
-    target_link_options(
-      ${target}
-      PRIVATE
-      -fsanitize=address,undefined
-      )
-  endif()
-endfunction()
+include(common)
 
 add_executable(
   jlox-in-cpp
@@ -62,7 +25,3 @@ target_compile_definitions(
   PRIVATE
   AST_PRINTER_STANDALONE
   )
-
-set(CMAKE_CTEST_ARGUMENTS --output-on-failure)
-include(CTest)
-add_subdirectory(test)

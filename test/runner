@@ -1,8 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 interpreter="${1}"
-input="${2}"
-use_repl="${3:-}"
+test_dir="${2}"
+input="${3}"
+use_repl="${4:-}"
 
 errexit() {
     echo >&2 "${1}"
@@ -10,8 +11,8 @@ errexit() {
 }
 
 here="$(dirname "${0}")"
-input_file="${here}/inputs/${input}"
-output_file="${here}/outputs/${input%%.*}"
+input_file="${here}/${test_dir}/inputs/${input}"
+output_file="${here}/${test_dir}/outputs/${input%%.*}"
 [[ -f "${input_file}" ]] || errexit "Non-existent input ${input_file}"
 [[ -f "${output_file}" ]] || errexit "Non-existent output ${output_file}"
 
@@ -23,10 +24,10 @@ trap cleanup EXIT
 
 exitcode=0
 if [[ "${use_repl}" == repl ]]; then
-    "${interpreter}" < "${here}/inputs/${input}" > "${interpreter_stdout}" \
+    "${interpreter}" < "${input_file}" > "${interpreter_stdout}" \
         2> "${interpreter_stderr}" || exitcode=$?
 else
-    "${interpreter}" "${here}/inputs/${input}" > "${interpreter_stdout}" \
+    "${interpreter}" "${input_file}" > "${interpreter_stdout}" \
         2> "${interpreter_stderr}" || exitcode=$?
 fi
 
