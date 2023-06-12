@@ -38,6 +38,9 @@ Stmt Parser::varDeclaration() {
 }
 
 Stmt Parser::statement() {
+  if (match({TokenType::IF}))
+    return ifStatement();
+
   if (match({TokenType::PRINT}))
     return printStatement();
 
@@ -45,6 +48,19 @@ Stmt Parser::statement() {
     return makeStmt<BlockStmt>(blockStatement());
 
   return expressionStatement();
+}
+
+Stmt Parser::ifStatement() {
+  consume(TokenType::LEFT_PAREN, "Expect '(' after 'if'.");
+  Expr condition = expression();
+  consume(TokenType::RIGHT_PAREN, "Expect ')' after if condition.");
+
+  Stmt thenBranch = statement();
+  std::optional<Stmt> elseBranch;
+  if (match({TokenType::ELSE}))
+    elseBranch = statement();
+
+  return makeStmt<IfStmt>(condition, thenBranch, elseBranch);
 }
 
 Stmt Parser::printStatement() {

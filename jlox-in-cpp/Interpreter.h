@@ -16,6 +16,7 @@ public:
 
   void operator()(const BlockStmt *stmt);
   void operator()(const ExpressionStmt *stmt);
+  void operator()(const IfStmt *stmt);
   void operator()(const PrintStmt *stmt);
   void operator()(const VarStmt *stmt);
 
