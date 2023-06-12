@@ -131,10 +131,10 @@ Value Interpreter::operator()(const BinaryExpr *expr) {
         std::holds_alternative<double>(right))
       return std::get<double>(left) + std::get<double>(right);
 
-    if (std::holds_alternative<std::string_view>(left) &&
-        std::holds_alternative<std::string_view>(right))
-      return saveString(std::string(std::get<std::string_view>(left)) +
-                        std::string(std::get<std::string_view>(right)));
+    if (std::holds_alternative<StringValue>(left) &&
+        std::holds_alternative<StringValue>(right))
+      return StringValue(std::get<StringValue>(left),
+                         std::get<StringValue>(right));
 
     throw RuntimeError(expr->op,
                        "Operands must be two numbers or two strings.");
@@ -170,9 +170,4 @@ void Interpreter::checkNumberOperands(const Token &token, Value left,
   if (!std::holds_alternative<double>(left) ||
       !std::holds_alternative<double>(right))
     throw new RuntimeError(token, "Operands must be numbers.");
-}
-
-std::string_view Interpreter::saveString(std::string &&str) {
-  savedStrings.push_back(std::move(str));
-  return savedStrings.back();
 }
