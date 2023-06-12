@@ -7,7 +7,7 @@
 
 class Scanner {
   const std::string_view source;
-  std::vector<Token> tokens;
+  std::vector<Token> &tokens;
   size_t start = 0;
   size_t current = 0;
   unsigned line = 1;
@@ -39,7 +39,8 @@ class Scanner {
   std::string_view currentLexeme() const;
 
 public:
-  Scanner(std::string_view source) : source(source) {}
+  Scanner(std::string_view source, std::vector<Token> &tokens)
+      : source(source), tokens(tokens) {}
 
   const std::vector<Token> &scanTokens();
 };

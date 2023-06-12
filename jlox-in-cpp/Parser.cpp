@@ -371,20 +371,13 @@ void Parser::synchronize() {
 template <class T, class... U> Expr Parser::makeExpr(U &&...args) {
   T *node = new T{std::forward<U>(args)...};
   Expr expr(node);
-  ownedExprs.emplace_back(expr);
+  exprStorage.emplace_back(expr);
   return expr;
 }
 
 template <class T, class... U> Stmt Parser::makeStmt(U &&...args) {
   T *node = new T{std::forward<U>(args)...};
   Stmt stmt(node);
-  ownedStmts.emplace_back(stmt);
+  stmtStorage.emplace_back(stmt);
   return stmt;
-}
-
-Parser::~Parser() {
-  for (Expr expr : ownedExprs)
-    std::visit([](auto &&ptr) { delete ptr; }, expr);
-  for (Stmt stmt : ownedStmts)
-    std::visit([](auto &&ptr) { delete ptr; }, stmt);
 }
