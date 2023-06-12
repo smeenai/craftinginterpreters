@@ -4,6 +4,7 @@
 #include <string>
 
 static bool sawError;
+static bool sawRuntimeError;
 
 static void report(int line, std::string_view where, std::string_view message) {
   std::cerr << "[line " << line << "] Error" << where << ": " << message << "\n";
@@ -21,6 +22,13 @@ void error(const Token &token, std::string_view message) {
     report(token.line, " at '" + std::string(token.lexeme) + "'", message);
 }
 
+void runtimeError(const RuntimeError &error) {
+  std::cerr << error.what() << "\n[line " << error.token.line << "]\n";
+  sawRuntimeError = true;
+}
+
 bool hadError() { return sawError; }
+
+bool hadRuntimeError() { return sawRuntimeError; }
 
 void clearError() { sawError = false; }

@@ -10,8 +10,11 @@
 
 #include "AstPrinter.h"
 #include "Error.h"
+#include "Interpreter.h"
 #include "Parser.h"
 #include "Scanner.h"
+
+static Interpreter interpreter;
 
 static void run(std::string_view source) {
   Scanner scanner(source);
@@ -23,7 +26,7 @@ static void run(std::string_view source) {
   if (hadError())
     return;
 
-  std::cout << std::visit(AstPrinter(), expr.value()) << "\n";
+  interpreter.interpret(expr.value());
 }
 
 static void runPrompt() {
@@ -49,7 +52,7 @@ static int runFile(const char *path) {
   // copy here, sigh. https://reviews.llvm.org/D148641
   run(source.str());
 #endif
-  return hadError() ? EX_DATAERR : 0;
+  return hadError() ? EX_DATAERR : hadRuntimeError() ? EX_SOFTWARE : 0;
 }
 
 int main(int argc, char *argv[]) {
