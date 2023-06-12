@@ -10,8 +10,9 @@
 // virtual methods can't be templated. std::variant is a more natural fit for
 // this anyway, so that works out.
 
-using Expr = std::variant<struct BinaryExpr *, struct GroupingExpr *,
-                          struct LiteralExpr *, struct UnaryExpr *>;
+using Expr =
+    std::variant<const struct BinaryExpr *, const struct GroupingExpr *,
+                 const struct LiteralExpr *, const struct UnaryExpr *>;
 
 struct BinaryExpr {
   const Expr left;
