@@ -1,3 +1,4 @@
+#include <deque>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -38,8 +39,14 @@ static void run(std::string_view source) {
 }
 
 static void runPrompt() {
-  std::string inputLine;
+  // Keep all input lines alive to match file behavior and simplify everything.
+  // We need the string objects to not move around since we have string_views
+  // referencing them, so we use a deque instead of a vector. Note that the
+  // small string optimization means that the string objects themselves need to
+  // stay fixed in place and not just their heap allocations.
+  std::deque<std::string> inputLines;
   while (true) {
+    std::string &inputLine = inputLines.emplace_back();
     std::getline(std::cin, inputLine);
     if (inputLine.empty())
       break;
