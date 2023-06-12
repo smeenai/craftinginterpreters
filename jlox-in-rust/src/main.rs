@@ -5,6 +5,11 @@ use std::io::Write;
 use std::process::ExitCode;
 
 mod error;
+mod scanner;
+mod token;
+mod token_type;
+
+use crate::scanner::Scanner;
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
@@ -53,5 +58,9 @@ fn run_prompt() {
 }
 
 fn run(source: &str) {
-    println!("{source}");
+    let mut scanner = Scanner::new(source);
+    let tokens = scanner.scan_tokens();
+    for token in tokens {
+        println!("{token}");
+    }
 }
