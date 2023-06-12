@@ -6,6 +6,7 @@
 #include "ClockFunction.h"
 #include "Error.h"
 #include "LoxCallable.h"
+#include "LoxFunction.h"
 #include "RuntimeError.h"
 #include "Token.h"
 
@@ -35,6 +36,10 @@ void Interpreter::executeBlock(const std::vector<Stmt> &statements,
 
 void Interpreter::operator()(const ExpressionStmt *stmt) {
   std::visit(*this, stmt->expr);
+}
+
+void Interpreter::operator()(const FunctionStmt *stmt) {
+  environment->define(stmt->name.lexeme, std::make_shared<LoxFunction>(*stmt));
 }
 
 void Interpreter::operator()(const IfStmt *stmt) {
