@@ -22,18 +22,18 @@ void Interpreter::operator()(const ExpressionStmt *stmt) {
 
 void Interpreter::operator()(const PrintStmt *stmt) {
   Value value = std::visit(*this, stmt->expr);
-  std::cout << stringify(value) << "\n";
+  std::cout << value << "\n";
 }
 
-auto Interpreter::operator()(const LiteralExpr *expr) -> Value {
+Value Interpreter::operator()(const LiteralExpr *expr) {
   return std::visit([](auto &&v) -> Value { return v; }, expr->value);
 }
 
-auto Interpreter::operator()(const GroupingExpr *expr) -> Value {
+Value Interpreter::operator()(const GroupingExpr *expr) {
   return std::visit(*this, expr->expr);
 }
 
-auto Interpreter::operator()(const UnaryExpr *expr) -> Value {
+Value Interpreter::operator()(const UnaryExpr *expr) {
   Value right = std::visit(*this, expr->right);
 
   switch (expr->op.type) {
@@ -49,7 +49,7 @@ auto Interpreter::operator()(const UnaryExpr *expr) -> Value {
   }
 }
 
-auto Interpreter::operator()(const BinaryExpr *expr) -> Value {
+Value Interpreter::operator()(const BinaryExpr *expr) {
   Value left = std::visit(*this, expr->left);
   Value right = std::visit(*this, expr->right);
 
@@ -124,25 +124,6 @@ void Interpreter::checkNumberOperands(const Token &token, Value left,
   if (!std::holds_alternative<double>(left) ||
       !std::holds_alternative<double>(right))
     throw new RuntimeError(token, "Operands must be numbers.");
-}
-
-std::string Interpreter::stringify(Value value) {
-  // This is identical to AstPrinter's LiteralExpr logic right now, but it might
-  // not be in the future, so duplicate it for now.
-  static struct {
-    std::string operator()(double d) {
-      // Going this route instead of directly using std::string to avoid
-      // unnecessary decimal places.
-      std::ostringstream stream;
-      stream << d;
-      return stream.str();
-    }
-
-    std::string operator()(std::string_view s) { return std::string(s); }
-    std::string operator()(bool b) { return b ? "true" : "false"; }
-    std::string operator()(std::nullptr_t) { return "nil"; }
-  } visitor;
-  return std::visit(visitor, value);
 }
 
 std::string_view Interpreter::saveString(std::string &&str) {

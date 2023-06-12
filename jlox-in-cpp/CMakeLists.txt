@@ -46,6 +46,7 @@ add_executable(
   Parser.cpp
   Scanner.cpp
   Token.cpp
+  Value.cpp
   )
 set_target_flags(jlox-in-cpp)
 
