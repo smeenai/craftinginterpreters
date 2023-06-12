@@ -60,11 +60,7 @@ std::ostream &operator<<(std::ostream &o, TokenType tokenType);
 
 struct Token {
   const TokenType type;
-#pragma clang diagnostic push
-  // Temporary until we have a use
-#pragma clang diagnostic ignored "-Wunused-private-field"
   const unsigned line; // ordered this way for better packing
-#pragma clang diagnostic pop
   const std::string_view lexeme;
   const std::variant<std::monostate, std::string_view, double> literal;
 

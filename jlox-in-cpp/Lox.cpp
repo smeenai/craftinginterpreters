@@ -5,19 +5,25 @@
 #include <string_view>
 #include <sysexits.h>
 #include <utility>
+#include <variant>
 #include <vector>
 
+#include "AstPrinter.h"
 #include "Error.h"
+#include "Parser.h"
 #include "Scanner.h"
 
 static void run(std::string_view source) {
   Scanner scanner(source);
   const std::vector<Token> &tokens = scanner.scanTokens();
+  Parser parser(tokens);
+  std::optional<Expr> expr = parser.parse();
 
-  // For now, just print the tokens.
-  for (const Token &token : tokens) {
-    std::cout << token << "\n";
-  }
+  // Stop if there was a syntax error.
+  if (hadError())
+    return;
+
+  std::cout << std::visit(AstPrinter(), expr.value()) << "\n";
 }
 
 static void runPrompt() {

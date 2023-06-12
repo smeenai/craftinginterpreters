@@ -1,50 +1,47 @@
-#include <initializer_list>
+#include "AstPrinter.h"
+
 #include <iostream>
 #include <string>
-#include <string_view>
 #include <variant>
 
 #include "Expr.h"
 #include "Token.h"
 
-class AstPrinter {
-public:
-  std::string operator()(const BinaryExpr *expr) {
-    return parenthesize(expr->op.lexeme, {expr->left, expr->right});
-  }
+std::string AstPrinter::operator()(const BinaryExpr *expr) {
+  return parenthesize(expr->op.lexeme, {expr->left, expr->right});
+}
 
-  std::string operator()(const GroupingExpr *expr) {
-    return parenthesize("group", {expr->expr});
-  }
+std::string AstPrinter::operator()(const GroupingExpr *expr) {
+  return parenthesize("group", {expr->expr});
+}
 
-  std::string operator()(const LiteralExpr *expr) {
-    static struct {
-      std::string operator()(double d) { return std::to_string(d); }
-      std::string operator()(std::string_view s) { return std::string(s); }
-      std::string operator()(bool b) { return b ? "true" : "false"; }
-      std::string operator()(std::nullptr_t) { return "nil"; }
-    } visitor;
-    return std::visit(visitor, expr->value);
-  }
+std::string AstPrinter::operator()(const LiteralExpr *expr) {
+  static struct {
+    std::string operator()(double d) { return std::to_string(d); }
+    std::string operator()(std::string_view s) { return std::string(s); }
+    std::string operator()(bool b) { return b ? "true" : "false"; }
+    std::string operator()(std::nullptr_t) { return "nil"; }
+  } visitor;
+  return std::visit(visitor, expr->value);
+}
 
-  std::string operator()(const UnaryExpr *expr) {
-    return parenthesize(expr->op.lexeme, {expr->right});
-  }
+std::string AstPrinter::operator()(const UnaryExpr *expr) {
+  return parenthesize(expr->op.lexeme, {expr->right});
+}
 
-private:
-  std::string parenthesize(std::string_view name,
-                           std::initializer_list<Expr> exprs) {
-    std::string str("(");
-    str.append(name);
-    for (Expr expr : exprs) {
-      str.append(" ");
-      str.append(std::visit(*this, expr));
-    }
-    str.append(")");
-    return str;
+std::string AstPrinter::parenthesize(std::string_view name,
+                                     std::initializer_list<Expr> exprs) {
+  std::string str("(");
+  str.append(name);
+  for (Expr expr : exprs) {
+    str.append(" ");
+    str.append(std::visit(*this, expr));
   }
-};
+  str.append(")");
+  return str;
+}
 
+#if defined(AST_PRINTER_STANDALONE)
 int main() {
   // Can't construct from temporaries because of lifetime issues
   LiteralExpr oneTwoThree{123.};
@@ -58,3 +55,4 @@ int main() {
 
   std::cout << std::visit(AstPrinter(), Expr(&binary)) << "\n";
 }
+#endif
