@@ -39,6 +39,13 @@ private:
   Interpreter &interpreter;
   std::vector<std::unordered_map<std::string_view, bool>> scopes;
 
+  enum class ClassType {
+    NONE,
+    CLASS,
+  };
+
+  ClassType currentClass = ClassType::NONE;
+
   enum class FunctionType {
     NONE,
     FUNCTION,

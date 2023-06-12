@@ -1,0 +1,4 @@
+print this;
+fun f() { print this; }
+class C {}
+print this;

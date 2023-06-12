@@ -16,6 +16,8 @@ void Resolver::operator()(const BlockStmt *stmt) {
 }
 
 void Resolver::operator()(const ClassStmt *stmt) {
+  SaveAndRestore currentClassGuard(currentClass, ClassType::CLASS);
+
   declare(stmt->name);
   define(stmt->name);
 
@@ -113,6 +115,9 @@ void Resolver::operator()(const SetExpr *expr) {
 }
 
 void Resolver::operator()(const ThisExpr *expr) {
+  if (currentClass == ClassType::NONE)
+    error(expr->keyword, "Can't use 'this' outside of a class.");
+
   resolveLocal(expr, expr->keyword);
 }
 
