@@ -21,7 +21,7 @@ void Resolver::operator()(const ExpressionStmt *stmt) {
 void Resolver::operator()(const FunctionStmt *stmt) {
   declare(stmt->name);
   define(stmt->name);
-  resolveFunction(stmt);
+  resolveFunction(stmt, FunctionType::FUNCTION);
 }
 
 void Resolver::operator()(const IfStmt *stmt) {
@@ -36,6 +36,9 @@ void Resolver::operator()(const PrintStmt *stmt) {
 }
 
 void Resolver::operator()(const ReturnStmt *stmt) {
+  if (currentFunction == FunctionType::NONE)
+    error(stmt->keyword, "Can't return from top-level code");
+
   if (stmt->value)
     std::visit(*this, *stmt->value);
 }
@@ -93,8 +96,12 @@ void Resolver::operator()(const VariableExpr *expr) {
 }
 
 void Resolver::declare(const Token &name) {
-  if (!scopes.empty())
-    scopes.back()[name.lexeme] = false;
+  if (scopes.empty())
+    return;
+
+  auto [_, wasInserted] = scopes.back().emplace(name.lexeme, false);
+  if (!wasInserted)
+    error(name, "Already a variable with this name in this scope.");
 }
 
 void Resolver::define(const Token &name) {
@@ -112,7 +119,9 @@ void Resolver::resolveLocal(Expr expr, const Token &name) {
   }
 }
 
-void Resolver::resolveFunction(const FunctionStmt *function) {
+void Resolver::resolveFunction(const FunctionStmt *function,
+                               FunctionType type) {
+  SaveAndRestore currentFunctionGuard(currentFunction, type);
   ScopeGuard scopeGuard(*this);
   for (const Token &param : function->params) {
     declare(param);
