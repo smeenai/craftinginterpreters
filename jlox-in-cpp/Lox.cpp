@@ -19,9 +19,9 @@
 static Interpreter interpreter;
 
 static void run(std::string_view source) {
-  Scanner scanner(source);
+  Scanner scanner(source, interpreter.newTokenStorage());
   const std::vector<Token> &tokens = scanner.scanTokens();
-  Parser parser(tokens);
+  Parser parser(tokens, interpreter.exprStorage, interpreter.stmtStorage);
   std::vector<Stmt> statements = parser.parse();
 
   // Stop if there was a syntax error.

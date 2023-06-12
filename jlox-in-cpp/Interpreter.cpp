@@ -18,6 +18,13 @@ Interpreter::Interpreter() {
   globals.define("clock", std::make_shared<ClockFunction>());
 }
 
+Interpreter::~Interpreter() {
+  for (Expr expr : exprStorage)
+    std::visit([](auto &&ptr) { delete ptr; }, expr);
+  for (Stmt stmt : stmtStorage)
+    std::visit([](auto &&ptr) { delete ptr; }, stmt);
+}
+
 void Interpreter::interpret(const std::vector<Stmt> &statements) {
   try {
     for (Stmt stmt : statements)

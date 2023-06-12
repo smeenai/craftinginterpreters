@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <deque>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -15,6 +16,7 @@
 class Interpreter {
 public:
   Interpreter();
+  ~Interpreter();
   void resolve(Expr expr, unsigned distance) { locals[expr] = distance; }
   void interpret(const std::vector<Stmt> &statements);
 
@@ -43,10 +45,20 @@ public:
     Value value;
   };
 
+  // Own all tokens and AST nodes to avoid any lifetime issues.
+  std::vector<Token> &newTokenStorage() { return tokenStorage.emplace_back(); }
+  std::vector<Expr> exprStorage;
+  std::vector<Stmt> stmtStorage;
+
 private:
   std::shared_ptr<Environment> environment = std::make_shared<Environment>();
   Environment &globals = *environment;
   std::unordered_map<Expr, unsigned> locals;
+
+  // A vector of vectors would be okay, since the inner vectors should be moved
+  // instead of copied when resizing the outer vector (thus preserving
+  // references to their elements), but a deque avoids copying on growth.
+  std::deque<std::vector<Token>> tokenStorage;
 
   class EnvironmentGuard {
   public:
