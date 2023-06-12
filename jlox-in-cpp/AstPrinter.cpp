@@ -38,6 +38,10 @@ std::string AstPrinter::operator()(const LiteralExpr *expr) {
   return std::visit(visitor, expr->value);
 }
 
+std::string AstPrinter::operator()(const LogicalExpr *expr) {
+  return parenthesize(expr->op.lexeme, {expr->left, expr->right});
+}
+
 std::string AstPrinter::operator()(const UnaryExpr *expr) {
   return parenthesize(expr->op.lexeme, {expr->right});
 }

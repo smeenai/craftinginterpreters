@@ -89,7 +89,7 @@ std::vector<Stmt> Parser::blockStatement() {
 Expr Parser::expression() { return assignment(); }
 
 Expr Parser::assignment() {
-  Expr expr = equality();
+  Expr expr = orExpression();
 
   if (match({TokenType::EQUAL})) {
     const Token &equals = previous();
@@ -105,24 +105,36 @@ Expr Parser::assignment() {
   return expr;
 }
 
+Expr Parser::orExpression() {
+  return binary<LogicalExpr>(&Parser::andExpression, {TokenType::OR});
+}
+
+Expr Parser::andExpression() {
+  return binary<LogicalExpr>(&Parser::equality, {TokenType::AND});
+}
+
 Expr Parser::equality() {
-  return binary(&Parser::comparison,
-                {TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL});
+  return binary<BinaryExpr>(&Parser::comparison,
+                            {TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL});
 }
 
 Expr Parser::comparison() {
-  return binary(&Parser::term, {TokenType::GREATER, TokenType::GREATER_EQUAL,
-                                TokenType::LESS, TokenType::LESS_EQUAL});
+  return binary<BinaryExpr>(&Parser::term,
+                            {TokenType::GREATER, TokenType::GREATER_EQUAL,
+                             TokenType::LESS, TokenType::LESS_EQUAL});
 }
 
 Expr Parser::term() {
-  return binary(&Parser::factor, {TokenType::MINUS, TokenType::PLUS});
+  return binary<BinaryExpr>(&Parser::factor,
+                            {TokenType::MINUS, TokenType::PLUS});
 }
 
 Expr Parser::factor() {
-  return binary(&Parser::unary, {TokenType::SLASH, TokenType::STAR});
+  return binary<BinaryExpr>(&Parser::unary,
+                            {TokenType::SLASH, TokenType::STAR});
 }
 
+template <class T>
 Expr Parser::binary(Expr (Parser::*next)(),
                     std::initializer_list<TokenType> types) {
   Expr expr = (this->*next)();
@@ -130,7 +142,7 @@ Expr Parser::binary(Expr (Parser::*next)(),
   while (match(types)) {
     const Token &op = previous();
     Expr right = (this->*next)();
-    expr = makeExpr<BinaryExpr>(expr, op, right);
+    expr = makeExpr<T>(expr, op, right);
   }
 
   return expr;

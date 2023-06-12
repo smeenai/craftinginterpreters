@@ -13,7 +13,8 @@
 using Expr =
     std::variant<const struct AssignExpr *, const struct BinaryExpr *,
                  const struct GroupingExpr *, const struct LiteralExpr *,
-                 const struct UnaryExpr *, const struct VariableExpr *>;
+                 const struct LogicalExpr *, const struct UnaryExpr *,
+                 const struct VariableExpr *>;
 
 struct AssignExpr {
   const Token &name;
@@ -32,6 +33,12 @@ struct GroupingExpr {
 
 struct LiteralExpr {
   const std::variant<double, std::string_view, bool, std::nullptr_t> value;
+};
+
+struct LogicalExpr {
+  const Expr left;
+  const Token &op;
+  const Expr right;
 };
 
 struct UnaryExpr {
