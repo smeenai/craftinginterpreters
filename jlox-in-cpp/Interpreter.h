@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Expr.h"
+#include "Stmt.h"
 
 class Interpreter {
 public:
@@ -14,7 +15,10 @@ public:
   // won't be after subsequent chapters, so I'm keeping it separate.
   using Value = std::variant<std::nullptr_t, bool, double, std::string_view>;
 
-  void interpret(Expr expr);
+  void interpret(const std::vector<Stmt> &statements);
+
+  void operator()(const ExpressionStmt *stmt);
+  void operator()(const PrintStmt *stmt);
 
   Value operator()(const LiteralExpr *expr);
   Value operator()(const GroupingExpr *expr);

@@ -7,13 +7,22 @@
 #include "RuntimeError.h"
 #include "Token.h"
 
-void Interpreter::interpret(Expr expr) {
+void Interpreter::interpret(const std::vector<Stmt> &statements) {
   try {
-    Value value = std::visit(*this, expr);
-    std::cout << stringify(value) << "\n";
+    for (Stmt stmt : statements)
+      std::visit(*this, stmt);
   } catch (const RuntimeError &error) {
     runtimeError(error);
   }
+}
+
+void Interpreter::operator()(const ExpressionStmt *stmt) {
+  std::visit(*this, stmt->expr);
+}
+
+void Interpreter::operator()(const PrintStmt *stmt) {
+  Value value = std::visit(*this, stmt->expr);
+  std::cout << stringify(value) << "\n";
 }
 
 auto Interpreter::operator()(const LiteralExpr *expr) -> Value {

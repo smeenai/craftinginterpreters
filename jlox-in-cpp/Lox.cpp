@@ -20,13 +20,13 @@ static void run(std::string_view source) {
   Scanner scanner(source);
   const std::vector<Token> &tokens = scanner.scanTokens();
   Parser parser(tokens);
-  std::optional<Expr> expr = parser.parse();
+  std::vector<Stmt> statements = parser.parse();
 
   // Stop if there was a syntax error.
   if (hadError())
     return;
 
-  interpreter.interpret(expr.value());
+  interpreter.interpret(statements);
 }
 
 static void runPrompt() {
