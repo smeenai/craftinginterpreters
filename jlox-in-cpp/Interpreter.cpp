@@ -111,12 +111,26 @@ Value Interpreter::operator()(const UnaryExpr *expr) {
 }
 
 Value Interpreter::operator()(const VariableExpr *expr) {
-  return environment->get(expr->name);
+  return lookUpVariable(expr->name, expr);
+}
+
+Value Interpreter::lookUpVariable(const Token &name, Expr expr) const {
+  auto it = locals.find(expr);
+  if (it != locals.end())
+    return environment->getAt(it->second, name.lexeme);
+
+  return globals.get(name);
 }
 
 Value Interpreter::operator()(const AssignExpr *expr) {
   Value value = std::visit(*this, expr->value);
-  environment->assign(expr->name, value);
+
+  auto it = locals.find(expr);
+  if (it != locals.end())
+    environment->assignAt(it->second, expr->name, value);
+  else
+    globals.assign(expr->name, value);
+
   return value;
 }
 

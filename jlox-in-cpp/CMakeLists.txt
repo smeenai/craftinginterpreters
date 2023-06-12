@@ -44,6 +44,7 @@ add_executable(
   Interpreter.cpp
   Lox.cpp
   Parser.cpp
+  Resolver.cpp
   Scanner.cpp
   Token.cpp
   Value.cpp
