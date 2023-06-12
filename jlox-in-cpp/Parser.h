@@ -36,10 +36,13 @@ private:
   Expr expression();
   Expr assignment();
 
+  Expr orExpression();
+  Expr andExpression();
   Expr equality();
   Expr comparison();
   Expr term();
   Expr factor();
+  template <class T>
   Expr binary(Expr (Parser::*next)(), std::initializer_list<TokenType> types);
 
   Expr unary();

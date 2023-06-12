@@ -53,6 +53,13 @@ Value Interpreter::operator()(const LiteralExpr *expr) {
   return std::visit([](auto &&v) -> Value { return v; }, expr->value);
 }
 
+Value Interpreter::operator()(const LogicalExpr *expr) {
+  Value left = std::visit(*this, expr->left);
+  if (isTruthy(left) == (expr->op.type == TokenType::OR))
+    return left;
+  return std::visit(*this, expr->right);
+}
+
 Value Interpreter::operator()(const GroupingExpr *expr) {
   return std::visit(*this, expr->expr);
 }
