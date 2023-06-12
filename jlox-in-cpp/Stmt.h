@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <optional>
 #include <variant>
 
@@ -10,8 +11,9 @@
 
 using Stmt =
     std::variant<const struct BlockStmt *, const struct ExpressionStmt *,
-                 const struct IfStmt *, const struct PrintStmt *,
-                 const struct VarStmt *, const struct WhileStmt *>;
+                 const struct FunctionStmt *, const struct IfStmt *,
+                 const struct PrintStmt *, const struct VarStmt *,
+                 const struct WhileStmt *>;
 
 struct BlockStmt {
   const std::vector<Stmt> statements;
@@ -19,6 +21,12 @@ struct BlockStmt {
 
 struct ExpressionStmt {
   const Expr expr;
+};
+
+struct FunctionStmt {
+  const Token &name;
+  const std::vector<std::reference_wrapper<const Token>> params;
+  const std::vector<Stmt> body;
 };
 
 struct IfStmt {

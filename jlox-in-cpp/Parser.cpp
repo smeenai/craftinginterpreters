@@ -16,6 +16,8 @@ std::vector<Stmt> Parser::parse() {
 
 std::optional<Stmt> Parser::declaration() {
   try {
+    if (match({TokenType::FUN}))
+      return functionStatement("function");
     if (match({TokenType::VAR}))
       return varDeclaration();
 
@@ -122,6 +124,28 @@ Stmt Parser::expressionStatement() {
   Expr expr = expression();
   consume(TokenType::SEMICOLON, "Expect ';' after expression.");
   return makeStmt<ExpressionStmt>(expr);
+}
+
+Stmt Parser::functionStatement(const std::string &kind) {
+  const Token &name =
+      consume(TokenType::IDENTIFIER, "Expect " + kind + " name.");
+  consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name.");
+  std::vector<std::reference_wrapper<const Token>> parameters;
+  if (!check(TokenType::RIGHT_PAREN)) {
+    do {
+      parameters.emplace_back(
+          consume(TokenType::IDENTIFIER, "Expect parameter name."));
+    } while (match({TokenType::COMMA}));
+  }
+
+  if (parameters.size() > 255)
+    error(peek(), "Can't have more than 255 parameters.");
+
+  consume(TokenType::RIGHT_PAREN, "Expect ')' after parameters.");
+
+  consume(TokenType::LEFT_BRACE, "Expect '{' before " + kind + " body.");
+  std::vector<Stmt> body = blockStatement();
+  return makeStmt<FunctionStmt>(name, std::move(parameters), std::move(body));
 }
 
 std::vector<Stmt> Parser::blockStatement() {

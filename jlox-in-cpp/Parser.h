@@ -33,6 +33,7 @@ private:
   Stmt printStatement();
   Stmt whileStatement();
   Stmt expressionStatement();
+  Stmt functionStatement(const std::string &kind);
   std::vector<Stmt> blockStatement();
 
   Expr expression();

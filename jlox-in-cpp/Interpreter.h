@@ -18,6 +18,7 @@ public:
 
   void operator()(const BlockStmt *stmt);
   void operator()(const ExpressionStmt *stmt);
+  void operator()(const FunctionStmt *stmt);
   void operator()(const IfStmt *stmt);
   void operator()(const PrintStmt *stmt);
   void operator()(const VarStmt *stmt);
@@ -32,9 +33,15 @@ public:
   Value operator()(const BinaryExpr *expr);
   Value operator()(const CallExpr *expr);
 
+  void executeBlock(const std::vector<Stmt> &statements,
+                    std::shared_ptr<Environment> &&env);
+
 private:
   std::shared_ptr<Environment> environment = std::make_shared<Environment>();
   Environment &globals = *environment;
+
+  // TODO: Remove this once LoxFunction doesn't use globals
+  friend class LoxFunction;
 
   class EnvironmentGuard {
   public:
@@ -55,9 +62,6 @@ private:
     Interpreter &interpreter;
     std::shared_ptr<Environment> oldEnv;
   };
-
-  void executeBlock(const std::vector<Stmt> &statements,
-                    std::shared_ptr<Environment> &&env);
 
   static bool isTruthy(Value value);
   static void checkNumberOperand(const Token &token, Value value);
