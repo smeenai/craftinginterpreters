@@ -13,6 +13,7 @@
 
 class Interpreter {
 public:
+  Interpreter();
   void interpret(const std::vector<Stmt> &statements);
 
   void operator()(const BlockStmt *stmt);
@@ -29,9 +30,11 @@ public:
   Value operator()(const VariableExpr *expr);
   Value operator()(const AssignExpr *expr);
   Value operator()(const BinaryExpr *expr);
+  Value operator()(const CallExpr *expr);
 
 private:
   std::shared_ptr<Environment> environment = std::make_shared<Environment>();
+  Environment &globals = *environment;
 
   class EnvironmentGuard {
   public:

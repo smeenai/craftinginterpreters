@@ -204,7 +204,36 @@ Expr Parser::unary() {
     return makeExpr<UnaryExpr>(op, right);
   }
 
-  return primary();
+  return call();
+}
+
+Expr Parser::call() {
+  Expr expr = primary();
+
+  while (true) {
+    if (match({TokenType::LEFT_PAREN}))
+      expr = finishCall(expr);
+    else
+      break;
+  }
+
+  return expr;
+}
+
+Expr Parser::finishCall(Expr callee) {
+  std::vector<Expr> arguments;
+  if (!check(TokenType::RIGHT_PAREN)) {
+    do {
+      arguments.push_back(expression());
+    } while (match({TokenType::COMMA}));
+  }
+
+  if (arguments.size() > 255)
+    error(peek(), "Can't have more than 255 arguments.");
+
+  const Token &paren =
+      consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments.");
+  return makeExpr<CallExpr>(callee, paren, std::move(arguments));
 }
 
 Expr Parser::primary() {

@@ -3,9 +3,15 @@
 #include <iostream>
 #include <sstream>
 
+#include "ClockFunction.h"
 #include "Error.h"
+#include "LoxCallable.h"
 #include "RuntimeError.h"
 #include "Token.h"
+
+Interpreter::Interpreter() {
+  globals.define("clock", std::make_shared<ClockFunction>());
+}
 
 void Interpreter::interpret(const std::vector<Stmt> &statements) {
   try {
@@ -151,6 +157,27 @@ Value Interpreter::operator()(const BinaryExpr *expr) {
   default:
     __builtin_unreachable();
   }
+}
+
+Value Interpreter::operator()(const CallExpr *expr) {
+  Value callee = std::visit(*this, expr->callee);
+
+  std::vector<Value> arguments;
+  for (const Expr argument : expr->arguments)
+    arguments.push_back(std::visit(*this, argument));
+
+  const auto *function =
+      std::get_if<std::shared_ptr<const LoxCallable>>(&callee);
+  if (!function)
+    throw RuntimeError(expr->paren, "Can only call functions and classes.");
+
+  if (arguments.size() != (*function)->arity())
+    throw RuntimeError(expr->paren, std::string("Expected ") +
+                                        std::to_string((*function)->arity()) +
+                                        " arguments but got " +
+                                        std::to_string(arguments.size()) + ".");
+
+  return (*function)->call(*this, arguments);
 }
 
 bool Interpreter::isTruthy(Value value) {

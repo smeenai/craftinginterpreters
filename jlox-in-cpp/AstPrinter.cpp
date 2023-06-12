@@ -17,6 +17,13 @@ std::string AstPrinter::operator()(const BinaryExpr *expr) {
   return parenthesize(expr->op.lexeme, {expr->left, expr->right});
 }
 
+std::string AstPrinter::operator()(const CallExpr *expr) {
+  std::string str = std::visit(*this, expr->callee) + "(";
+  for (const Expr subExpr : expr->arguments)
+    str += std::visit(*this, subExpr);
+  return str;
+}
+
 std::string AstPrinter::operator()(const GroupingExpr *expr) {
   return parenthesize("group", {expr->expr});
 }
