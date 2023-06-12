@@ -39,8 +39,10 @@ endfunction()
 
 add_executable(
   jlox-in-cpp
+  AstPrinter.cpp
   Error.cpp
   Lox.cpp
+  Parser.cpp
   Scanner.cpp
   Token.cpp
   )
@@ -51,3 +53,8 @@ add_executable(
   AstPrinter.cpp
   )
 set_target_flags(AstPrinter)
+target_compile_definitions(
+  AstPrinter
+  PRIVATE
+  AST_PRINTER_STANDALONE
+  )
