@@ -26,6 +26,7 @@ function(set_target_flags target)
       ${target}
       PRIVATE
       -O1 # lesser chances of UB hiding issues
+      -UNDEBUG # enable assertions
       -fsanitize=address,undefined
       )
     target_link_options(
