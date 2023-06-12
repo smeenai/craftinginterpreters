@@ -32,6 +32,14 @@ std::optional<Stmt> Parser::declaration() {
 
 Stmt Parser::classDeclaration() {
   const Token &name = consume(TokenType::IDENTIFIER, "Expect class name.");
+
+  const VariableExpr *superclass = nullptr;
+  if (match({TokenType::LESS})) {
+    consume(TokenType::IDENTIFIER, "Expect superclass name.");
+    superclass =
+        std::get<const VariableExpr *>(makeExpr<VariableExpr>(previous()));
+  }
+
   consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
 
   std::vector<const FunctionStmt *> methods;
@@ -40,7 +48,7 @@ Stmt Parser::classDeclaration() {
         std::get<const FunctionStmt *>(functionStatement("method")));
 
   consume(TokenType::RIGHT_BRACE, "Expect '}' after class body.");
-  return makeStmt<ClassStmt>(name, std::move(methods));
+  return makeStmt<ClassStmt>(name, superclass, std::move(methods));
 }
 
 Stmt Parser::varDeclaration() {

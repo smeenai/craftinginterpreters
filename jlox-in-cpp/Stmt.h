@@ -21,6 +21,7 @@ struct BlockStmt {
 
 struct ClassStmt {
   const Token &name;
+  const VariableExpr *superclass; // can be nullptr to indicate no parent
   const std::vector<const FunctionStmt *> methods;
 };
 

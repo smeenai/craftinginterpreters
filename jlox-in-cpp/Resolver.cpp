@@ -21,6 +21,13 @@ void Resolver::operator()(const ClassStmt *stmt) {
   declare(stmt->name);
   define(stmt->name);
 
+  if (stmt->superclass) {
+    if (stmt->name.lexeme == stmt->superclass->name.lexeme)
+      error(stmt->superclass->name, "A class can't inherit from itself.");
+
+    (*this)(stmt->superclass);
+  }
+
   ScopeGuard scopeGuard(*this);
   scopes.back().emplace("this", true);
 

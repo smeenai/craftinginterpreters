@@ -42,6 +42,17 @@ void Interpreter::operator()(const BlockStmt *stmt) {
 }
 
 void Interpreter::operator()(const ClassStmt *stmt) {
+  std::shared_ptr<const LoxClass> superclass;
+  if (stmt->superclass) {
+    Value superclassValue = (*this)(stmt->superclass);
+    if (auto *superclassCallable =
+            std::get_if<std::shared_ptr<const LoxCallable>>(&superclassValue))
+      superclass =
+          std::dynamic_pointer_cast<const LoxClass>(*superclassCallable);
+    if (!superclass)
+      throw RuntimeError(stmt->superclass->name, "Superclass must be a class.");
+  }
+
   environment->define(stmt->name.lexeme, nullptr);
 
   std::unordered_map<std::string_view, LoxFunction> methods;
@@ -52,8 +63,9 @@ void Interpreter::operator()(const ClassStmt *stmt) {
                                     ? FunctionType::INITIALIZER
                                     : FunctionType::NOT_INITIALIZER));
 
-  environment->assign(stmt->name, std::make_shared<LoxClass>(
-                                      stmt->name.lexeme, std::move(methods)));
+  environment->assign(stmt->name, std::make_shared<const LoxClass>(
+                                      stmt->name.lexeme, std::move(superclass),
+                                      std::move(methods)));
 }
 
 void Interpreter::executeBlock(const std::vector<Stmt> &statements,
