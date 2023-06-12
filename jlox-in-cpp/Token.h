@@ -58,7 +58,7 @@ enum class TokenType { TOKEN_TYPES };
 
 std::ostream &operator<<(std::ostream &o, TokenType tokenType);
 
-class Token {
+struct Token {
   const TokenType type;
 #pragma clang diagnostic push
   // Temporary until we have a use
@@ -68,7 +68,6 @@ class Token {
   const std::string_view lexeme;
   const std::variant<std::monostate, std::string_view, double> literal;
 
-public:
   Token(TokenType type, std::string_view lexeme, int line)
       : type(type), line(line), lexeme(lexeme) {}
 
