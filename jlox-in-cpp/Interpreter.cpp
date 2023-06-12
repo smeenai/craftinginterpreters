@@ -46,7 +46,11 @@ void Interpreter::operator()(const ClassStmt *stmt) {
 
   std::unordered_map<std::string_view, LoxFunction> methods;
   for (const FunctionStmt *method : stmt->methods)
-    methods.emplace(method->name.lexeme, LoxFunction(*method, environment));
+    methods.emplace(method->name.lexeme,
+                    LoxFunction(*method, environment,
+                                method->name.lexeme == "init"
+                                    ? FunctionType::INITIALIZER
+                                    : FunctionType::NOT_INITIALIZER));
 
   environment->assign(stmt->name, std::make_shared<LoxClass>(
                                       stmt->name.lexeme, std::move(methods)));
@@ -65,7 +69,8 @@ void Interpreter::operator()(const ExpressionStmt *stmt) {
 
 void Interpreter::operator()(const FunctionStmt *stmt) {
   environment->define(stmt->name.lexeme,
-                      std::make_shared<LoxFunction>(*stmt, environment));
+                      std::make_shared<LoxFunction>(
+                          *stmt, environment, FunctionType::NOT_INITIALIZER));
 }
 
 void Interpreter::operator()(const IfStmt *stmt) {

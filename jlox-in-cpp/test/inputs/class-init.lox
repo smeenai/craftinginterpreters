@@ -1,0 +1,2 @@
+class C { init(name) { this.name = name; } }
+print C("foo").name;

@@ -12,7 +12,7 @@
 
 class LoxInstance : public std::enable_shared_from_this<LoxInstance> {
 public:
-  static Value create(const LoxClass &klass) {
+  static std::shared_ptr<LoxInstance> create(const LoxClass &klass) {
     // make_shared isn't happy with private constructors without some help :(
     struct make_shared_enabler : public LoxInstance {
       make_shared_enabler(const LoxClass &klass) : LoxInstance(klass) {}

@@ -13,11 +13,14 @@ class LoxClass : public LoxCallable {
 public:
   LoxClass(std::string_view name,
            std::unordered_map<std::string_view, LoxFunction> &&methods)
-      : name(name), methods(std::move(methods)) {}
+      : name(name), methods(std::move(methods)),
+        initializer(findMethod("init")) {}
 
   std::string str() const override { return std::string(name); }
 
-  size_t arity() const override { return 0; }
+  size_t arity() const override {
+    return initializer ? initializer->arity() : 0;
+  }
 
   Value call(Interpreter &, const std::vector<Value> &) const override;
 
@@ -29,4 +32,5 @@ public:
 private:
   std::string_view name;
   const std::unordered_map<std::string_view, LoxFunction> methods;
+  const LoxFunction *initializer;
 };

@@ -2,6 +2,11 @@
 
 #include "LoxInstance.h"
 
-Value LoxClass::call(Interpreter &, const std::vector<Value> &) const {
-  return LoxInstance::create(*this);
+Value LoxClass::call(Interpreter &interpreter,
+                     const std::vector<Value> &arguments) const {
+  std::shared_ptr<LoxInstance> instance = LoxInstance::create(*this);
+  if (initializer)
+    initializer->bind(instance)->call(interpreter, arguments);
+
+  return instance;
 }

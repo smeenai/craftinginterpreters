@@ -5,16 +5,26 @@
 #include "Environment.h"
 #include "LoxCallable.h"
 
+enum class FunctionType : bool {
+  NOT_INITIALIZER,
+  INITIALIZER,
+};
+
 class LoxFunction : public LoxCallable {
 public:
   LoxFunction(const FunctionStmt &declaration,
-              const std::shared_ptr<Environment> &closure)
-      : declaration(declaration), closure(closure) {}
+              const std::shared_ptr<Environment> &closure, FunctionType type)
+      : declaration(declaration), closure(closure),
+        isInitializer(type == FunctionType::INITIALIZER) {}
 
-  Value bind(std::shared_ptr<class LoxInstance> &&instance) const {
+  std::shared_ptr<const LoxFunction>
+  bind(std::shared_ptr<class LoxInstance> instance) const {
     auto env = std::make_shared<Environment>(closure);
     env->define("this", std::move(instance));
-    return std::make_shared<const LoxFunction>(declaration, env);
+    return std::make_shared<const LoxFunction>(
+        declaration, env,
+        isInitializer ? FunctionType::INITIALIZER
+                      : FunctionType::NOT_INITIALIZER);
   }
 
   size_t arity() const override { return declaration.params.size(); }
@@ -28,10 +38,10 @@ public:
     try {
       interpreter.executeBlock(declaration.body, std::move(env));
     } catch (const Interpreter::Return &returnValue) {
-      return returnValue.value;
+      return isInitializer ? closure->getAt(0, "this") : returnValue.value;
     }
 
-    return nullptr;
+    return isInitializer ? closure->getAt(0, "this") : nullptr;
   }
 
   std::string str() const override {
@@ -41,4 +51,5 @@ public:
 private:
   const FunctionStmt &declaration;
   const std::shared_ptr<Environment> closure;
+  bool isInitializer;
 };

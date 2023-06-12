@@ -32,8 +32,9 @@ void Resolver::operator()(const ClassStmt *stmt) {
     if (!wasInserted)
       error(method->name, "Already a method with this name in this class.");
 
-    FunctionType declaration = FunctionType::METHOD;
-    resolveFunction(method, declaration);
+    resolveFunction(method, method->name.lexeme == "init"
+                                ? FunctionType::INITIALIZER
+                                : FunctionType::METHOD);
   }
 }
 
@@ -62,8 +63,12 @@ void Resolver::operator()(const ReturnStmt *stmt) {
   if (currentFunction == FunctionType::NONE)
     error(stmt->keyword, "Can't return from top-level code");
 
-  if (stmt->value)
+  if (stmt->value) {
+    if (currentFunction == FunctionType::INITIALIZER)
+      error(stmt->keyword, "Can't return a value from an initializer.");
+
     std::visit(*this, *stmt->value);
+  }
 }
 
 void Resolver::operator()(const VarStmt *stmt) {
