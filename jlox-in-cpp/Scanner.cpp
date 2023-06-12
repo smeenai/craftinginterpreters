@@ -172,19 +172,19 @@ bool Scanner::match(char expected) {
   return true;
 }
 
-char Scanner::peek() {
+char Scanner::peek() const {
   if (isAtEnd())
     return '\0';
   return source.at(current);
 }
 
-char Scanner::peekNext() {
+char Scanner::peekNext() const {
   if (current + 1 >= source.length())
     return '\0';
   return source.at(current + 1);
 }
 
-bool Scanner::isAtEnd() { return current >= source.length(); }
+bool Scanner::isAtEnd() const { return current >= source.length(); }
 
 char Scanner::advance() { return source.at(current++); }
 
@@ -200,6 +200,6 @@ void Scanner::addToken(double literal) {
   tokens.emplace_back(TokenType::NUMBER, currentLexeme(), literal, line);
 }
 
-std::string_view Scanner::currentLexeme() {
+std::string_view Scanner::currentLexeme() const {
   return source.substr(start, current - start);
 }

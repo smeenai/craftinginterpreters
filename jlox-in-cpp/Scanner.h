@@ -22,11 +22,11 @@ class Scanner {
 
   bool match(char expected);
 
-  char peek();
+  char peek() const;
 
-  char peekNext();
+  char peekNext() const;
 
-  bool isAtEnd();
+  bool isAtEnd() const;
 
   char advance();
 
@@ -36,7 +36,7 @@ class Scanner {
 
   void addToken(double literal);
 
-	std::string_view currentLexeme();
+	std::string_view currentLexeme() const;
 
 public:
   Scanner(std::string_view source) : source(source) {}
