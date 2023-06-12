@@ -28,6 +28,7 @@ private:
   std::optional<Stmt> declaration();
   Stmt varDeclaration();
   Stmt statement();
+  Stmt ifStatement();
   Stmt printStatement();
   Stmt expressionStatement();
   std::vector<Stmt> blockStatement();

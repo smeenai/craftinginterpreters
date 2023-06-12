@@ -30,6 +30,13 @@ void Interpreter::operator()(const ExpressionStmt *stmt) {
   std::visit(*this, stmt->expr);
 }
 
+void Interpreter::operator()(const IfStmt *stmt) {
+  if (isTruthy(std::visit(*this, stmt->condition)))
+    std::visit(*this, stmt->thenBranch);
+  else if (stmt->elseBranch)
+    std::visit(*this, *stmt->elseBranch);
+}
+
 void Interpreter::operator()(const PrintStmt *stmt) {
   Value value = std::visit(*this, stmt->expr);
   std::cout << value << "\n";
