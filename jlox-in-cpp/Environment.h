@@ -63,6 +63,8 @@ public:
   [[nodiscard]] ScopeGuard addScope() { return ScopeGuard(*this); }
 
 private:
+  // This allows heterogenous lookup so we don't have to construct a std::string
+  // to look up names: https://stackoverflow.com/a/53530846
   struct string_view_hash {
     using is_transparent = void;
     std::size_t operator()(std::string_view str) const {
