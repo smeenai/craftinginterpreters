@@ -38,6 +38,9 @@ Stmt Parser::varDeclaration() {
 }
 
 Stmt Parser::statement() {
+  if (match({TokenType::FOR}))
+    return forStatement();
+
   if (match({TokenType::IF}))
     return ifStatement();
 
@@ -51,6 +54,41 @@ Stmt Parser::statement() {
     return makeStmt<BlockStmt>(blockStatement());
 
   return expressionStatement();
+}
+
+Stmt Parser::forStatement() {
+  consume(TokenType::LEFT_PAREN, "Expect '(' after 'for'.");
+
+  std::optional<Stmt> initializer;
+  if (match({TokenType::VAR}))
+    initializer = varDeclaration();
+  else if (!match({TokenType::SEMICOLON}))
+    initializer = expressionStatement();
+
+  std::optional<Expr> condition;
+  if (!check(TokenType::SEMICOLON))
+    condition = expression();
+  consume(TokenType::SEMICOLON, "Expect ';' after loop condition.");
+
+  std::optional<Expr> increment;
+  if (!check(TokenType::RIGHT_PAREN))
+    increment = expression();
+  consume(TokenType::RIGHT_PAREN, "Expect ')' after for clauses.");
+
+  Stmt body = statement();
+
+  if (increment)
+    body = makeStmt<BlockStmt>(
+        std::vector<Stmt>{body, makeStmt<ExpressionStmt>(*increment)});
+
+  if (!condition)
+    condition = makeExpr<LiteralExpr>(true);
+  body = makeStmt<WhileStmt>(*condition, body);
+
+  if (initializer)
+    body = makeStmt<BlockStmt>(std::vector<Stmt>{*initializer, body});
+
+  return body;
 }
 
 Stmt Parser::ifStatement() {
