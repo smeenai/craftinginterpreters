@@ -14,6 +14,7 @@ class Interpreter {
 public:
   void interpret(const std::vector<Stmt> &statements);
 
+  void operator()(const BlockStmt *stmt);
   void operator()(const ExpressionStmt *stmt);
   void operator()(const PrintStmt *stmt);
   void operator()(const VarStmt *stmt);
@@ -27,6 +28,8 @@ public:
 
 private:
   Environment environment;
+
+  void executeBlock(const std::vector<Stmt> &statements);
 
   static bool isTruthy(Value value);
   static void checkNumberOperand(const Token &token, Value value);

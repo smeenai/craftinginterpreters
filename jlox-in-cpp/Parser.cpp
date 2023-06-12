@@ -41,6 +41,9 @@ Stmt Parser::statement() {
   if (match({TokenType::PRINT}))
     return printStatement();
 
+  if (match({TokenType::LEFT_BRACE}))
+    return makeStmt<BlockStmt>(blockStatement());
+
   return expressionStatement();
 }
 
@@ -54,6 +57,17 @@ Stmt Parser::expressionStatement() {
   Expr expr = expression();
   consume(TokenType::SEMICOLON, "Expect ';' after expression.");
   return makeStmt<ExpressionStmt>(expr);
+}
+
+std::vector<Stmt> Parser::blockStatement() {
+  std::vector<Stmt> statements;
+
+  while (!check(TokenType::RIGHT_BRACE) && !isAtEnd())
+    if (std::optional<Stmt> maybeStmt = declaration())
+      statements.push_back(*maybeStmt);
+
+  consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
+  return statements;
 }
 
 Expr Parser::expression() { return assignment(); }

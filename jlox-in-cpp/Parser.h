@@ -30,6 +30,7 @@ private:
   Stmt statement();
   Stmt printStatement();
   Stmt expressionStatement();
+  std::vector<Stmt> blockStatement();
 
   Expr expression();
   Expr assignment();

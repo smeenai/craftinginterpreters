@@ -16,6 +16,16 @@ void Interpreter::interpret(const std::vector<Stmt> &statements) {
   }
 }
 
+void Interpreter::operator()(const BlockStmt *stmt) {
+  executeBlock(stmt->statements);
+}
+
+void Interpreter::executeBlock(const std::vector<Stmt> &statements) {
+  Environment::ScopeGuard scopeGuard = environment.addScope();
+  for (Stmt stmt : statements)
+    std::visit(*this, stmt);
+}
+
 void Interpreter::operator()(const ExpressionStmt *stmt) {
   std::visit(*this, stmt->expr);
 }
