@@ -41,6 +41,7 @@ add_executable(
   jlox-in-cpp
   AstPrinter.cpp
   Error.cpp
+  Interpreter.cpp
   Lox.cpp
   Parser.cpp
   Scanner.cpp
