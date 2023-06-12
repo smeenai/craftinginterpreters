@@ -6,12 +6,13 @@
 #include <vector>
 
 #include "Expr.h"
+#include "Stmt.h"
 #include "Token.h"
 
 class Parser {
 public:
   Parser(const std::vector<Token> &tokens) : current(tokens.begin()) {}
-  std::optional<Expr> parse();
+  std::vector<Stmt> parse();
 
   ~Parser();
   // These shouldn't be needed, and accidentally attempting to use them would
@@ -23,6 +24,10 @@ public:
 
 private:
   std::vector<Token>::const_iterator current;
+
+  Stmt statement();
+  Stmt printStatement();
+  Stmt expressionStatement();
 
   Expr expression();
 
@@ -55,4 +60,7 @@ private:
   // nodes).
   template <class T, class... U> Expr makeExpr(U &&...args);
   std::vector<Expr> ownedExprs;
+
+  template <class T, class... U> Stmt makeStmt(U &&...args);
+  std::vector<Stmt> ownedStmts;
 };

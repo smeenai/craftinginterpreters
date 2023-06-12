@@ -4,12 +4,30 @@
 
 #include "Error.h"
 
-std::optional<Expr> Parser::parse() {
-  try {
-    return expression();
-  } catch (ParseError error) {
-    return {};
-  }
+std::vector<Stmt> Parser::parse() {
+  std::vector<Stmt> statements;
+  while (!isAtEnd())
+    statements.push_back(statement());
+  return statements;
+}
+
+Stmt Parser::statement() {
+  if (match({TokenType::PRINT}))
+    return printStatement();
+
+  return expressionStatement();
+}
+
+Stmt Parser::printStatement() {
+  Expr value = expression();
+  consume(TokenType::SEMICOLON, "Expect ';' after value.");
+  return makeStmt<PrintStmt>(value);
+}
+
+Stmt Parser::expressionStatement() {
+  Expr expr = expression();
+  consume(TokenType::SEMICOLON, "Expect ';' after expression.");
+  return makeStmt<ExpressionStmt>(expr);
 }
 
 Expr Parser::expression() { return equality(); }
@@ -154,7 +172,16 @@ template <class T, class... U> Expr Parser::makeExpr(U &&...args) {
   return expr;
 }
 
+template <class T, class... U> Stmt Parser::makeStmt(U &&...args) {
+  T *node = new T{std::forward<U>(args)...};
+  Stmt stmt(node);
+  ownedStmts.emplace_back(stmt);
+  return stmt;
+}
+
 Parser::~Parser() {
   for (Expr expr : ownedExprs)
     std::visit([](auto &&ptr) { delete ptr; }, expr);
+  for (Stmt stmt : ownedStmts)
+    std::visit([](auto &&ptr) { delete ptr; }, stmt);
 }
