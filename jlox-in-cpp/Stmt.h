@@ -12,8 +12,8 @@
 using Stmt =
     std::variant<const struct BlockStmt *, const struct ExpressionStmt *,
                  const struct FunctionStmt *, const struct IfStmt *,
-                 const struct PrintStmt *, const struct VarStmt *,
-                 const struct WhileStmt *>;
+                 const struct PrintStmt *, const struct ReturnStmt *,
+                 const struct VarStmt *, const struct WhileStmt *>;
 
 struct BlockStmt {
   const std::vector<Stmt> statements;
@@ -37,6 +37,11 @@ struct IfStmt {
 
 struct PrintStmt {
   const Expr expr;
+};
+
+struct ReturnStmt {
+  const Token &keyword;
+  const std::optional<Expr> value;
 };
 
 struct VarStmt {
