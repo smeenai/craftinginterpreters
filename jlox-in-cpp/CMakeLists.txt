@@ -6,8 +6,7 @@ function(set_target_flags target)
     ${target}
     PROPERTIES
     CXX_EXTENSIONS OFF
-    # C++20 would be better, but libc++ (especially in Xcode) is behind :(
-    CXX_STANDARD 17
+    CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
     )
 

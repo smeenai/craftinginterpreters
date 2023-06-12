@@ -45,11 +45,11 @@ static int runFile(const char *path) {
   std::ifstream fileStream(path);
   std::stringstream source;
   source << fileStream.rdbuf();
-#if __cplusplus >= 202002L
+#if !defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 170000
+  // Assuming https://reviews.llvm.org/D148641 gets merged in time.
   run(source.view());
 #else
-  // libc++ doesn't have stringstream::view yet, so we create an unnecessary
-  // copy here, sigh. https://reviews.llvm.org/D148641
+  // Create an unnecessary copy until libc++ adds stringstream::view, sigh
   run(source.str());
 #endif
   return hadError() ? EX_DATAERR : hadRuntimeError() ? EX_SOFTWARE : 0;
