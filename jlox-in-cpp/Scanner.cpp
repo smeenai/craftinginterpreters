@@ -117,7 +117,7 @@ void Scanner::identifier() {
   while (isAlphaNumeric(peek()))
     advance();
 
-	auto it = keywords.find(currentLexeme());
+  auto it = keywords.find(currentLexeme());
   if (it == keywords.end())
     addToken(TokenType::IDENTIFIER);
   else

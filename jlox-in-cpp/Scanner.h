@@ -16,7 +16,7 @@ class Scanner {
 
   void identifier();
 
-  void number(); 
+  void number();
 
   void string();
 
@@ -36,7 +36,7 @@ class Scanner {
 
   void addToken(double literal);
 
-	std::string_view currentLexeme() const;
+  std::string_view currentLexeme() const;
 
 public:
   Scanner(std::string_view source) : source(source) {}

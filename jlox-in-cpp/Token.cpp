@@ -3,7 +3,7 @@
 #define STR_(s) #s
 #define STR(s) STR_(s)
 #define X(token) STR(token),
-static const char *tokenTypeNames[] = { TOKEN_TYPES };
+static const char *tokenTypeNames[] = {TOKEN_TYPES};
 #undef X
 
 std::ostream &operator<<(std::ostream &o, TokenType tokenType) {
