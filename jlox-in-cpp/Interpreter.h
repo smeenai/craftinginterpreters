@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -30,9 +31,30 @@ public:
   Value operator()(const BinaryExpr *expr);
 
 private:
-  Environment environment;
+  std::shared_ptr<Environment> environment = std::make_shared<Environment>();
 
-  void executeBlock(const std::vector<Stmt> &statements);
+  class EnvironmentGuard {
+  public:
+    [[nodiscard]] EnvironmentGuard(Interpreter &interpreter,
+                                   std::shared_ptr<Environment> &&newEnv)
+        : interpreter(interpreter), oldEnv(std::move(interpreter.environment)) {
+      interpreter.environment = std::move(newEnv);
+    }
+
+    ~EnvironmentGuard() { interpreter.environment = std::move(oldEnv); }
+
+    EnvironmentGuard(const EnvironmentGuard &) = delete;
+    EnvironmentGuard(EnvironmentGuard &&) = delete;
+    EnvironmentGuard &operator=(const EnvironmentGuard &) = delete;
+    EnvironmentGuard &operator=(EnvironmentGuard &&) = delete;
+
+  private:
+    Interpreter &interpreter;
+    std::shared_ptr<Environment> oldEnv;
+  };
+
+  void executeBlock(const std::vector<Stmt> &statements,
+                    std::shared_ptr<Environment> &&env);
 
   static bool isTruthy(Value value);
   static void checkNumberOperand(const Token &token, Value value);
