@@ -12,6 +12,7 @@
 #include "Error.h"
 #include "Interpreter.h"
 #include "Parser.h"
+#include "Resolver.h"
 #include "Scanner.h"
 
 static Interpreter interpreter;
@@ -23,6 +24,13 @@ static void run(std::string_view source) {
   std::vector<Stmt> statements = parser.parse();
 
   // Stop if there was a syntax error.
+  if (hadError())
+    return;
+
+  Resolver resolver(interpreter);
+  resolver.resolve(statements);
+
+  // Stop if there was a resolution error.
   if (hadError())
     return;
 

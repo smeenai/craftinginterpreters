@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 
 #include "Environment.h"
@@ -14,6 +15,7 @@
 class Interpreter {
 public:
   Interpreter();
+  void resolve(Expr expr, unsigned distance) { locals[expr] = distance; }
   void interpret(const std::vector<Stmt> &statements);
 
   void operator()(const BlockStmt *stmt);
@@ -44,6 +46,7 @@ public:
 private:
   std::shared_ptr<Environment> environment = std::make_shared<Environment>();
   Environment &globals = *environment;
+  std::unordered_map<Expr, unsigned> locals;
 
   class EnvironmentGuard {
   public:
@@ -64,6 +67,8 @@ private:
     Interpreter &interpreter;
     std::shared_ptr<Environment> oldEnv;
   };
+
+  Value lookUpVariable(const Token &name, Expr expr) const;
 
   static bool isTruthy(Value value);
   static void checkNumberOperand(const Token &token, Value value);
