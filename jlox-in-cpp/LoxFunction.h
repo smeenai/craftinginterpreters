@@ -15,7 +15,12 @@ public:
     for (size_t i = 0; i < declaration.params.size(); ++i)
       env->define(declaration.params[i].get().lexeme, arguments[i]);
 
-    interpreter.executeBlock(declaration.body, std::move(env));
+    try {
+      interpreter.executeBlock(declaration.body, std::move(env));
+    } catch (const Interpreter::Return &returnValue) {
+      return returnValue.value;
+    }
+
     return nullptr;
   }
 

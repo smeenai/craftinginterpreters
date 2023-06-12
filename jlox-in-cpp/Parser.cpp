@@ -49,6 +49,9 @@ Stmt Parser::statement() {
   if (match({TokenType::PRINT}))
     return printStatement();
 
+  if (match({TokenType::RETURN}))
+    return returnStatement();
+
   if (match({TokenType::WHILE}))
     return whileStatement();
 
@@ -110,6 +113,16 @@ Stmt Parser::printStatement() {
   Expr value = expression();
   consume(TokenType::SEMICOLON, "Expect ';' after value.");
   return makeStmt<PrintStmt>(value);
+}
+
+Stmt Parser::returnStatement() {
+  const Token &keyword = previous();
+  std::optional<Expr> value;
+  if (!check(TokenType::SEMICOLON))
+    value = expression();
+
+  consume(TokenType::SEMICOLON, "Expect ';' after return value.");
+  return makeStmt<ReturnStmt>(keyword, value);
 }
 
 Stmt Parser::whileStatement() {

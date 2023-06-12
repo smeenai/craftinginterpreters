@@ -21,6 +21,7 @@ public:
   void operator()(const FunctionStmt *stmt);
   void operator()(const IfStmt *stmt);
   void operator()(const PrintStmt *stmt);
+  void operator()(const ReturnStmt *stmt);
   void operator()(const VarStmt *stmt);
   void operator()(const WhileStmt *stmt);
 
@@ -35,6 +36,10 @@ public:
 
   void executeBlock(const std::vector<Stmt> &statements,
                     std::shared_ptr<Environment> &&env);
+
+  struct Return {
+    Value value;
+  };
 
 private:
   std::shared_ptr<Environment> environment = std::make_shared<Environment>();

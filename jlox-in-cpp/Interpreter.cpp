@@ -10,6 +10,10 @@
 #include "RuntimeError.h"
 #include "Token.h"
 
+struct Return {
+  Value value;
+};
+
 Interpreter::Interpreter() {
   globals.define("clock", std::make_shared<ClockFunction>());
 }
@@ -52,6 +56,14 @@ void Interpreter::operator()(const IfStmt *stmt) {
 void Interpreter::operator()(const PrintStmt *stmt) {
   Value value = std::visit(*this, stmt->expr);
   std::cout << value << "\n";
+}
+
+void Interpreter::operator()(const ReturnStmt *stmt) {
+  Value value = nullptr;
+  if (stmt->value)
+    value = std::visit(*this, *stmt->value);
+
+  throw Return{value};
 }
 
 void Interpreter::operator()(const VarStmt *stmt) {
