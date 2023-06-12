@@ -14,6 +14,7 @@ public:
   void resolve(const std::vector<Stmt> &statements);
 
   void operator()(const BlockStmt *stmt);
+  void operator()(const ClassStmt *stmt);
   void operator()(const ExpressionStmt *stmt);
   void operator()(const FunctionStmt *stmt);
   void operator()(const IfStmt *stmt);

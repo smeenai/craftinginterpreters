@@ -14,6 +14,11 @@ void Resolver::operator()(const BlockStmt *stmt) {
   resolve(stmt->statements);
 }
 
+void Resolver::operator()(const ClassStmt *stmt) {
+  declare(stmt->name);
+  define(stmt->name);
+}
+
 void Resolver::operator()(const ExpressionStmt *stmt) {
   std::visit(*this, stmt->expr);
 }

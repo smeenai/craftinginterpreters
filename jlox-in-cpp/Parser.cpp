@@ -16,6 +16,8 @@ std::vector<Stmt> Parser::parse() {
 
 std::optional<Stmt> Parser::declaration() {
   try {
+    if (match({TokenType::CLASS}))
+      return classDeclaration();
     if (match({TokenType::FUN}))
       return functionStatement("function");
     if (match({TokenType::VAR}))
@@ -26,6 +28,19 @@ std::optional<Stmt> Parser::declaration() {
     synchronize();
     return {};
   }
+}
+
+Stmt Parser::classDeclaration() {
+  const Token &name = consume(TokenType::IDENTIFIER, "Expect class name.");
+  consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
+
+  std::vector<const FunctionStmt *> methods;
+  while (!(check(TokenType::RIGHT_BRACE) && !isAtEnd()))
+    methods.push_back(
+        std::get<const FunctionStmt *>(functionStatement("method")));
+
+  consume(TokenType::RIGHT_BRACE, "Expect '}' after class body.");
+  return makeStmt<ClassStmt>(name, std::move(methods));
 }
 
 Stmt Parser::varDeclaration() {

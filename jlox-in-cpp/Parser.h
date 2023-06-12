@@ -22,6 +22,7 @@ private:
   std::vector<Token>::const_iterator current;
 
   std::optional<Stmt> declaration();
+  Stmt classDeclaration();
   Stmt varDeclaration();
   Stmt statement();
   Stmt forStatement();
