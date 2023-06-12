@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 
 #include "RuntimeError.h"
 #include "Token.h"
@@ -15,28 +16,51 @@ public:
   // (which needs Token so it can construct a RuntimeError). I imagine there's a
   // reason for this which will be revealed later.
   void define(std::string_view name, Value value) {
-    values[std::string(name)] = value;
+    scopes.back()[std::string(name)] = value;
   }
 
   Value get(const Token &name) const {
-    auto it = values.find(name.lexeme);
-    if (it != values.end())
-      return it->second;
+    for (auto scopeIt = scopes.rbegin(); scopeIt != scopes.rend(); ++scopeIt) {
+      auto it = scopeIt->find(name.lexeme);
+      if (it != scopeIt->end())
+        return it->second;
+    }
 
     throw RuntimeError(name, "Undefined variable '" + std::string(name.lexeme) +
                                  "'.");
   }
 
   void assign(const Token &name, Value value) {
-    auto it = values.find(name.lexeme);
-    if (it != values.end()) {
-      it->second = value;
-      return;
+    for (auto scopeIt = scopes.rbegin(); scopeIt != scopes.rend(); ++scopeIt) {
+      auto it = scopeIt->find(name.lexeme);
+      if (it != scopeIt->end()) {
+        it->second = value;
+        return;
+      }
     }
 
     throw RuntimeError(name, "Undefined variable '" + std::string(name.lexeme) +
                                  "'.");
   }
+
+  // A simple RAII wrapper to manage environment scopes.
+  class ScopeGuard {
+  public:
+    ~ScopeGuard() { environment.scopes.pop_back(); }
+    ScopeGuard(const ScopeGuard &) = delete;
+    ScopeGuard(ScopeGuard &&) = delete;
+    ScopeGuard &operator=(const ScopeGuard &) = delete;
+    ScopeGuard &operator=(ScopeGuard &&) = delete;
+
+  private:
+    friend class Environment;
+    ScopeGuard(Environment &environment) : environment(environment) {
+      environment.scopes.emplace_back();
+    }
+    Environment &environment;
+  };
+
+  [[nodiscard]] ScopeGuard addScope() { return ScopeGuard(*this); }
 
 private:
   struct string_view_hash {
@@ -54,6 +78,7 @@ private:
   // to avoid any unnecessary copying there.
   // TODO: Reconsider this if it turns out we need to keep the entire REPL input
   // lines alive for some other reason anyway.
-  std::unordered_map<std::string, Value, string_view_hash, std::equal_to<>>
-      values;
+  std::vector<
+      std::unordered_map<std::string, Value, string_view_hash, std::equal_to<>>>
+      scopes = {{}};
 };

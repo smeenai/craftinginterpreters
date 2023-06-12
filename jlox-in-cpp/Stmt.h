@@ -8,8 +8,13 @@
 
 // See Expr.h for why we use std::variant instead of a class hierarchy.
 
-using Stmt = std::variant<const struct ExpressionStmt *,
-                          const struct PrintStmt *, const struct VarStmt *>;
+using Stmt =
+    std::variant<const struct BlockStmt *, const struct ExpressionStmt *,
+                 const struct PrintStmt *, const struct VarStmt *>;
+
+struct BlockStmt {
+  const std::vector<Stmt> statements;
+};
 
 struct ExpressionStmt {
   const Expr expr;
