@@ -48,6 +48,8 @@ private:
   Expr binary(Expr (Parser::*next)(), std::initializer_list<TokenType> types);
 
   Expr unary();
+  Expr call();
+  Expr finishCall(Expr callee);
   Expr primary();
 
   bool match(std::initializer_list<TokenType> types);

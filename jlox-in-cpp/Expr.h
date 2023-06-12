@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <string_view>
 #include <variant>
+#include <vector>
 
 #include "Token.h"
 
@@ -12,9 +13,9 @@
 
 using Expr =
     std::variant<const struct AssignExpr *, const struct BinaryExpr *,
-                 const struct GroupingExpr *, const struct LiteralExpr *,
-                 const struct LogicalExpr *, const struct UnaryExpr *,
-                 const struct VariableExpr *>;
+                 struct CallExpr *, const struct GroupingExpr *,
+                 const struct LiteralExpr *, const struct LogicalExpr *,
+                 const struct UnaryExpr *, const struct VariableExpr *>;
 
 struct AssignExpr {
   const Token &name;
@@ -25,6 +26,12 @@ struct BinaryExpr {
   const Expr left;
   const Token &op;
   const Expr right;
+};
+
+struct CallExpr {
+  const Expr callee;
+  const Token &paren;
+  const std::vector<Expr> arguments;
 };
 
 struct GroupingExpr {
