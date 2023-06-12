@@ -60,6 +60,12 @@ Value Interpreter::operator()(const VariableExpr *expr) {
   return environment.get(expr->name);
 }
 
+Value Interpreter::operator()(const AssignExpr *expr) {
+  Value value = std::visit(*this, expr->value);
+  environment.assign(expr->name, value);
+  return value;
+}
+
 Value Interpreter::operator()(const BinaryExpr *expr) {
   Value left = std::visit(*this, expr->left);
   Value right = std::visit(*this, expr->right);

@@ -22,6 +22,7 @@ public:
   Value operator()(const GroupingExpr *expr);
   Value operator()(const UnaryExpr *expr);
   Value operator()(const VariableExpr *expr);
+  Value operator()(const AssignExpr *expr);
   Value operator()(const BinaryExpr *expr);
 
 private:
