@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <string_view>
 
 #include "ClockFunction.h"
 #include "Error.h"
@@ -41,8 +42,13 @@ void Interpreter::operator()(const BlockStmt *stmt) {
 
 void Interpreter::operator()(const ClassStmt *stmt) {
   environment->define(stmt->name.lexeme, nullptr);
-  environment->assign(stmt->name,
-                      std::make_shared<LoxClass>(stmt->name.lexeme));
+
+  std::unordered_map<std::string_view, LoxFunction> methods;
+  for (const FunctionStmt *method : stmt->methods)
+    methods.emplace(method->name.lexeme, LoxFunction(*method, environment));
+
+  environment->assign(stmt->name, std::make_shared<LoxClass>(
+                                      stmt->name.lexeme, std::move(methods)));
 }
 
 void Interpreter::executeBlock(const std::vector<Stmt> &statements,

@@ -1,5 +1,6 @@
 #include "Resolver.h"
 
+#include <unordered_set>
 #include <variant>
 
 #include "Error.h"
@@ -17,6 +18,18 @@ void Resolver::operator()(const BlockStmt *stmt) {
 void Resolver::operator()(const ClassStmt *stmt) {
   declare(stmt->name);
   define(stmt->name);
+
+  std::unordered_set<std::string_view> methodNames;
+  for (const FunctionStmt *method : stmt->methods) {
+    // This is an intentional divergence from jlox, which permits multiple
+    // methods with the same name and just uses the last one.
+    auto [_, wasInserted] = methodNames.insert(method->name.lexeme);
+    if (!wasInserted)
+      error(method->name, "Already a method with this name in this class.");
+
+    FunctionType declaration = FunctionType::METHOD;
+    resolveFunction(method, declaration);
+  }
 }
 
 void Resolver::operator()(const ExpressionStmt *stmt) {

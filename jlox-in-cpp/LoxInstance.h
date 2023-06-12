@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "LoxClass.h"
+#include "LoxFunction.h"
 #include "RuntimeError.h"
 #include "Value.h"
 
@@ -18,6 +19,10 @@ public:
     auto it = fields.find(name.lexeme);
     if (it != fields.end())
       return it->second;
+
+    const LoxFunction *method = klass.findMethod(name.lexeme);
+    if (method)
+      return std::make_shared<const LoxFunction>(*method); // temporary
 
     throw RuntimeError(name, "Undefined property '" + std::string(name.lexeme) +
                                  "'.");

@@ -1,0 +1,4 @@
+class C {
+  m() { return 0; }
+  m() { return 1; }
+}
