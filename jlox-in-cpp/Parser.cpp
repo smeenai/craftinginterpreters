@@ -44,6 +44,9 @@ Stmt Parser::statement() {
   if (match({TokenType::PRINT}))
     return printStatement();
 
+  if (match({TokenType::WHILE}))
+    return whileStatement();
+
   if (match({TokenType::LEFT_BRACE}))
     return makeStmt<BlockStmt>(blockStatement());
 
@@ -67,6 +70,14 @@ Stmt Parser::printStatement() {
   Expr value = expression();
   consume(TokenType::SEMICOLON, "Expect ';' after value.");
   return makeStmt<PrintStmt>(value);
+}
+
+Stmt Parser::whileStatement() {
+  consume(TokenType::LEFT_PAREN, "Expect '(' after 'while'.");
+  Expr condition = expression();
+  consume(TokenType::RIGHT_PAREN, "Expect ')' after condition.");
+  Stmt body = statement();
+  return makeStmt<WhileStmt>(condition, body);
 }
 
 Stmt Parser::expressionStatement() {

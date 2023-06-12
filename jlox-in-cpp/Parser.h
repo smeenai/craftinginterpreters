@@ -30,6 +30,7 @@ private:
   Stmt statement();
   Stmt ifStatement();
   Stmt printStatement();
+  Stmt whileStatement();
   Stmt expressionStatement();
   std::vector<Stmt> blockStatement();
 

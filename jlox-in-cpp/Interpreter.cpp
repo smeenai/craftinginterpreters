@@ -49,6 +49,11 @@ void Interpreter::operator()(const VarStmt *stmt) {
   environment.define(stmt->name.lexeme, value);
 }
 
+void Interpreter::operator()(const WhileStmt *stmt) {
+  while (isTruthy(std::visit(*this, stmt->condition)))
+    std::visit(*this, stmt->body);
+}
+
 Value Interpreter::operator()(const LiteralExpr *expr) {
   return std::visit([](auto &&v) -> Value { return v; }, expr->value);
 }
