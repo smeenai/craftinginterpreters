@@ -27,6 +27,17 @@ public:
                                  "'.");
   }
 
+  void assign(const Token &name, Value value) {
+    auto it = values.find(name.lexeme);
+    if (it != values.end()) {
+      it->second = value;
+      return;
+    }
+
+    throw RuntimeError(name, "Undefined variable '" + std::string(name.lexeme) +
+                                 "'.");
+  }
+
 private:
   struct string_view_hash {
     using is_transparent = void;

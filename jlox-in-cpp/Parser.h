@@ -32,6 +32,7 @@ private:
   Stmt expressionStatement();
 
   Expr expression();
+  Expr assignment();
 
   Expr equality();
   Expr comparison();

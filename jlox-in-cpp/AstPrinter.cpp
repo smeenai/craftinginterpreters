@@ -8,6 +8,11 @@
 #include "Expr.h"
 #include "Token.h"
 
+std::string AstPrinter::operator()(const AssignExpr *expr) {
+  return std::string(expr->name.lexeme) + " = " +
+         std::visit(*this, expr->value);
+}
+
 std::string AstPrinter::operator()(const BinaryExpr *expr) {
   return parenthesize(expr->op.lexeme, {expr->left, expr->right});
 }

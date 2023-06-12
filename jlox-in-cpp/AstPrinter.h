@@ -7,6 +7,7 @@
 
 class AstPrinter {
 public:
+  std::string operator()(const AssignExpr *expr);
   std::string operator()(const BinaryExpr *expr);
   std::string operator()(const GroupingExpr *expr);
   std::string operator()(const LiteralExpr *expr);

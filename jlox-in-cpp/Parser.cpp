@@ -56,7 +56,24 @@ Stmt Parser::expressionStatement() {
   return makeStmt<ExpressionStmt>(expr);
 }
 
-Expr Parser::expression() { return equality(); }
+Expr Parser::expression() { return assignment(); }
+
+Expr Parser::assignment() {
+  Expr expr = equality();
+
+  if (match({TokenType::EQUAL})) {
+    const Token &equals = previous();
+    Expr value = assignment();
+
+    if (const VariableExpr **variableExpr =
+            std::get_if<const VariableExpr *>(&expr))
+      return makeExpr<AssignExpr>((*variableExpr)->name, value);
+
+    error(equals, "Invalid assignment target.");
+  }
+
+  return expr;
+}
 
 Expr Parser::equality() {
   return binary(&Parser::comparison,

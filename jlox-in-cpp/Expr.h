@@ -11,9 +11,14 @@
 // this anyway, so that works out.
 
 using Expr =
-    std::variant<const struct BinaryExpr *, const struct GroupingExpr *,
-                 const struct LiteralExpr *, const struct UnaryExpr *,
-                 const struct VariableExpr *>;
+    std::variant<const struct AssignExpr *, const struct BinaryExpr *,
+                 const struct GroupingExpr *, const struct LiteralExpr *,
+                 const struct UnaryExpr *, const struct VariableExpr *>;
+
+struct AssignExpr {
+  const Token &name;
+  Expr value;
+};
 
 struct BinaryExpr {
   const Expr left;
