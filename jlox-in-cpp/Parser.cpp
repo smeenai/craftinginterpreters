@@ -6,9 +6,35 @@
 
 std::vector<Stmt> Parser::parse() {
   std::vector<Stmt> statements;
-  while (!isAtEnd())
-    statements.push_back(statement());
+  while (!isAtEnd()) {
+    std::optional<Stmt> decl = declaration();
+    if (decl)
+      statements.push_back(*decl);
+  }
   return statements;
+}
+
+std::optional<Stmt> Parser::declaration() {
+  try {
+    if (match({TokenType::VAR}))
+      return varDeclaration();
+
+    return statement();
+  } catch (ParseError error) {
+    synchronize();
+    return {};
+  }
+}
+
+Stmt Parser::varDeclaration() {
+  const Token &name = consume(TokenType::IDENTIFIER, "Expect variable name.");
+
+  std::optional<Expr> initializer;
+  if (match({TokenType::EQUAL}))
+    initializer = expression();
+
+  consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
+  return makeStmt<VarStmt>(name, initializer);
 }
 
 Stmt Parser::statement() {
@@ -89,6 +115,9 @@ Expr Parser::primary() {
   } literalVisitor{*this};
   if (match({TokenType::NUMBER, TokenType::STRING}))
     return std::visit(literalVisitor, previous().literal);
+
+  if (match({TokenType::IDENTIFIER}))
+    return makeExpr<VariableExpr>(previous());
 
   if (match({TokenType::LEFT_PAREN})) {
     Expr expr = expression();
