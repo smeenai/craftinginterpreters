@@ -22,7 +22,6 @@ public:
 
   void operator()(const BlockStmt *stmt);
   void operator()(const ExpressionStmt *stmt);
-  void operator()(const FunctionStmt *stmt);
   void operator()(const IfStmt *stmt);
   void operator()(const PrintStmt *stmt);
   void operator()(const ReturnStmt *stmt);
@@ -36,6 +35,7 @@ public:
   Value operator()(const VariableExpr *expr);
   Value operator()(const AssignExpr *expr);
   Value operator()(const BinaryExpr *expr);
+  Value operator()(const FunctionExpr *expr);
   Value operator()(const CallExpr *expr);
 
   void executeBlock(const std::vector<Stmt> &statements,

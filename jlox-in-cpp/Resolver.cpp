@@ -18,12 +18,6 @@ void Resolver::operator()(const ExpressionStmt *stmt) {
   std::visit(*this, stmt->expr);
 }
 
-void Resolver::operator()(const FunctionStmt *stmt) {
-  declare(stmt->name);
-  define(stmt->name);
-  resolveFunction(stmt, FunctionType::FUNCTION);
-}
-
 void Resolver::operator()(const IfStmt *stmt) {
   std::visit(*this, stmt->condition);
   std::visit(*this, stmt->thenBranch);
@@ -69,6 +63,10 @@ void Resolver::operator()(const CallExpr *expr) {
   std::visit(*this, expr->callee);
   for (Expr argument : expr->arguments)
     std::visit(*this, argument);
+}
+
+void Resolver::operator()(const FunctionExpr *expr) {
+  resolveFunction(expr, FunctionType::FUNCTION);
 }
 
 void Resolver::operator()(const GroupingExpr *expr) {
@@ -119,7 +117,7 @@ void Resolver::resolveLocal(Expr expr, const Token &name) {
   }
 }
 
-void Resolver::resolveFunction(const FunctionStmt *function,
+void Resolver::resolveFunction(const FunctionExpr *function,
                                FunctionType type) {
   SaveAndRestore currentFunctionGuard(currentFunction, type);
   ScopeGuard scopeGuard(*this);

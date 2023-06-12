@@ -15,7 +15,6 @@ public:
 
   void operator()(const BlockStmt *stmt);
   void operator()(const ExpressionStmt *stmt);
-  void operator()(const FunctionStmt *stmt);
   void operator()(const IfStmt *stmt);
   void operator()(const PrintStmt *stmt);
   void operator()(const ReturnStmt *stmt);
@@ -25,6 +24,7 @@ public:
   void operator()(const AssignExpr *expr);
   void operator()(const BinaryExpr *expr);
   void operator()(const CallExpr *expr);
+  void operator()(const FunctionExpr *stmt);
   void operator()(const GroupingExpr *expr);
   void operator()(const LiteralExpr *expr);
   void operator()(const LogicalExpr *expr);
@@ -70,5 +70,5 @@ private:
   void define(const Token &name);
 
   void resolveLocal(Expr expr, const Token &name);
-  void resolveFunction(const FunctionStmt *function, FunctionType type);
+  void resolveFunction(const FunctionExpr *function, FunctionType type);
 };

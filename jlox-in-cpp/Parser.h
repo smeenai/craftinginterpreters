@@ -34,6 +34,7 @@ private:
   std::vector<Stmt> blockStatement();
 
   Expr expression();
+  Expr functionExpression(const std::string &kind, const Token *name);
   Expr assignment();
 
   Expr orExpression();
@@ -53,9 +54,11 @@ private:
   bool match(std::initializer_list<TokenType> types);
   const Token &consume(TokenType type, std::string_view message);
   bool check(TokenType type) const;
+  bool checkNext(TokenType type) const;
   const Token &advance();
   bool isAtEnd() const;
   const Token &peek() const;
+  const Token &peekNext() const;
   const Token &previous() const;
 
   // We would normally inherit from a standard exception type, but this seems to

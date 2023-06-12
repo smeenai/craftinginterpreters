@@ -24,6 +24,10 @@ std::string AstPrinter::operator()(const CallExpr *expr) {
   return str;
 }
 
+std::string AstPrinter::operator()(const FunctionExpr *) {
+  return "fn"; // pure laziness
+}
+
 std::string AstPrinter::operator()(const GroupingExpr *expr) {
   return parenthesize("group", {expr->expr});
 }

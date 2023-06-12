@@ -49,11 +49,6 @@ void Interpreter::operator()(const ExpressionStmt *stmt) {
   std::visit(*this, stmt->expr);
 }
 
-void Interpreter::operator()(const FunctionStmt *stmt) {
-  environment->define(stmt->name.lexeme,
-                      std::make_shared<LoxFunction>(*stmt, environment));
-}
-
 void Interpreter::operator()(const IfStmt *stmt) {
   if (isTruthy(std::visit(*this, stmt->condition)))
     std::visit(*this, stmt->thenBranch);
@@ -196,6 +191,10 @@ Value Interpreter::operator()(const BinaryExpr *expr) {
   default:
     __builtin_unreachable();
   }
+}
+
+Value Interpreter::operator()(const FunctionExpr *expr) {
+  return std::make_shared<LoxFunction>(*expr, environment);
 }
 
 Value Interpreter::operator()(const CallExpr *expr) {

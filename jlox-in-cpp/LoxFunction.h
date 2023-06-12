@@ -5,7 +5,7 @@
 
 class LoxFunction : public LoxCallable {
 public:
-  LoxFunction(const FunctionStmt &declaration,
+  LoxFunction(const FunctionExpr &declaration,
               const std::shared_ptr<Environment> &closure)
       : declaration(declaration), closure(closure) {}
 
@@ -27,10 +27,12 @@ public:
   }
 
   std::string str() const override {
-    return "<fn " + std::string(declaration.name.lexeme) + ">";
+    std::string name =
+        declaration.name ? std::string(declaration.name->lexeme) : "anon";
+    return "<fn " + name + ">";
   }
 
 private:
-  const FunctionStmt &declaration;
+  const FunctionExpr &declaration;
   const std::shared_ptr<Environment> closure;
 };

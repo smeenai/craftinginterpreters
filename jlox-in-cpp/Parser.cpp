@@ -16,8 +16,11 @@ std::vector<Stmt> Parser::parse() {
 
 std::optional<Stmt> Parser::declaration() {
   try {
-    if (match({TokenType::FUN}))
+    if (check(TokenType::FUN) && !checkNext(TokenType::LEFT_PAREN)) {
+      advance(); // consume `fun`
       return functionStatement("function");
+    }
+
     if (match({TokenType::VAR}))
       return varDeclaration();
 
@@ -142,7 +145,31 @@ Stmt Parser::expressionStatement() {
 Stmt Parser::functionStatement(const std::string &kind) {
   const Token &name =
       consume(TokenType::IDENTIFIER, "Expect " + kind + " name.");
-  consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name.");
+  Expr functionExpr = functionExpression(kind, &name);
+  return makeStmt<VarStmt>(name, functionExpr);
+}
+
+std::vector<Stmt> Parser::blockStatement() {
+  std::vector<Stmt> statements;
+
+  while (!check(TokenType::RIGHT_BRACE) && !isAtEnd())
+    if (std::optional<Stmt> maybeStmt = declaration())
+      statements.push_back(*maybeStmt);
+
+  consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
+  return statements;
+}
+
+Expr Parser::expression() {
+  if (match({TokenType::FUN}))
+    return functionExpression("fun expression", nullptr);
+
+  return assignment();
+}
+
+Expr Parser::functionExpression(const std::string &kind, const Token *name) {
+  consume(TokenType::LEFT_PAREN,
+          "Expect '(' after " + kind + (name ? " name." : "."));
   std::vector<std::reference_wrapper<const Token>> parameters;
   if (!check(TokenType::RIGHT_PAREN)) {
     do {
@@ -158,28 +185,15 @@ Stmt Parser::functionStatement(const std::string &kind) {
 
   consume(TokenType::LEFT_BRACE, "Expect '{' before " + kind + " body.");
   std::vector<Stmt> body = blockStatement();
-  return makeStmt<FunctionStmt>(name, std::move(parameters), std::move(body));
+  return makeExpr<FunctionExpr>(name, std::move(parameters), std::move(body));
 }
-
-std::vector<Stmt> Parser::blockStatement() {
-  std::vector<Stmt> statements;
-
-  while (!check(TokenType::RIGHT_BRACE) && !isAtEnd())
-    if (std::optional<Stmt> maybeStmt = declaration())
-      statements.push_back(*maybeStmt);
-
-  consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
-  return statements;
-}
-
-Expr Parser::expression() { return assignment(); }
 
 Expr Parser::assignment() {
   Expr expr = orExpression();
 
   if (match({TokenType::EQUAL})) {
     const Token &equals = previous();
-    Expr value = assignment();
+    Expr value = expression();
 
     if (const VariableExpr **variableExpr =
             std::get_if<const VariableExpr *>(&expr))
@@ -326,6 +340,12 @@ bool Parser::check(TokenType type) const {
   return peek().type == type;
 }
 
+bool Parser::checkNext(TokenType type) const {
+  if (isAtEnd())
+    return false;
+  return peekNext().type == type;
+}
+
 const Token &Parser::advance() {
   if (!isAtEnd())
     ++current;
@@ -335,6 +355,8 @@ const Token &Parser::advance() {
 bool Parser::isAtEnd() const { return peek().type == TokenType::TOKEN_EOF; }
 
 const Token &Parser::peek() const { return *current; }
+
+const Token &Parser::peekNext() const { return *(current + 1); }
 
 const Token &Parser::previous() const { return *(current - 1); }
 
