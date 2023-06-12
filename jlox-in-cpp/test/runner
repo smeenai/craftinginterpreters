@@ -11,16 +11,30 @@ errexit() {
 
 here="$(dirname "${0}")"
 input_file="${here}/inputs/${input}"
-output_file="${here}/outputs/${input%%.*}"
 [[ -f "${input_file}" ]] || errexit "Non-existent input ${input_file}"
-[[ -f "${output_file}" ]] || errexit "Non-existent output ${output_file}"
 
 interpreter_output="$(mktemp)"
+exitcode=0
 if [[ "${use_repl}" == repl ]]; then
-    "${interpreter}" < "${here}/inputs/${input}" > "${interpreter_output}"
+    "${interpreter}" < "${here}/inputs/${input}" > "${interpreter_output}" || exitcode=$?
 else
-    "${interpreter}" "${here}/inputs/${input}" > "${interpreter_output}"
+    "${interpreter}" "${here}/inputs/${input}" > "${interpreter_output}" || exitcode=$?
 fi
+
+if [[ ${exitcode} -ne 0 ]]; then
+    EX_DATAERR=65
+    EX_SOFTWARE=70
+    if [[ "${input}" == *.parseerror.* && ${exitcode} -eq ${EX_DATAERR} ]]; then
+        exit 0
+    elif [[ "${input}" == *.runtimeerror.* && ${exitcode} -eq ${EX_SOFTWARE} ]]; then
+        exit 0
+    else
+        errexit "Unexpected exit code ${exitcode}"
+    fi
+fi
+
+output_file="${here}/outputs/${input%%.*}"
+[[ -f "${output_file}" ]] || errexit "Non-existent output ${output_file}"
 
 git diff --color --no-index --text --src-prefix=/ --dst-prefix=/ \
     "${output_file}" "${interpreter_output}" && rm -f "${interpreter_output}"
