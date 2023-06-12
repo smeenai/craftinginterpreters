@@ -313,6 +313,9 @@ Expr Parser::primary() {
   if (match({TokenType::NUMBER, TokenType::STRING}))
     return std::visit(literalVisitor, previous().literal);
 
+  if (match({TokenType::THIS}))
+    return makeExpr<ThisExpr>(previous());
+
   if (match({TokenType::IDENTIFIER}))
     return makeExpr<VariableExpr>(previous());
 

@@ -19,6 +19,9 @@ void Resolver::operator()(const ClassStmt *stmt) {
   declare(stmt->name);
   define(stmt->name);
 
+  ScopeGuard scopeGuard(*this);
+  scopes.back().emplace("this", true);
+
   std::unordered_set<std::string_view> methodNames;
   for (const FunctionStmt *method : stmt->methods) {
     // This is an intentional divergence from jlox, which permits multiple
@@ -107,6 +110,10 @@ void Resolver::operator()(const LogicalExpr *expr) {
 void Resolver::operator()(const SetExpr *expr) {
   std::visit(*this, expr->value);
   std::visit(*this, expr->object);
+}
+
+void Resolver::operator()(const ThisExpr *expr) {
+  resolveLocal(expr, expr->keyword);
 }
 
 void Resolver::operator()(const UnaryExpr *expr) {

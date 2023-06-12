@@ -59,6 +59,8 @@ std::string AstPrinter::operator()(const SetExpr *expr) {
          std::visit(*this, expr->value);
 }
 
+std::string AstPrinter::operator()(const ThisExpr *) { return "this"; }
+
 std::string AstPrinter::operator()(const UnaryExpr *expr) {
   return parenthesize(expr->op.lexeme, {expr->right});
 }

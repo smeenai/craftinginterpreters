@@ -9,6 +9,7 @@
 #include "LoxCallable.h"
 #include "LoxClass.h"
 #include "LoxFunction.h"
+#include "LoxInstance.h"
 #include "RuntimeError.h"
 #include "Token.h"
 
@@ -127,6 +128,10 @@ Value Interpreter::operator()(const SetExpr *expr) {
   Value value = std::visit(*this, expr->value);
   (*instance)->set(expr->name, value);
   return value;
+}
+
+Value Interpreter::operator()(const ThisExpr *expr) {
+  return lookUpVariable(expr->keyword, expr);
 }
 
 Value Interpreter::operator()(const GroupingExpr *expr) {

@@ -4,7 +4,6 @@
 #include <deque>
 #include <memory>
 #include <string>
-#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -34,6 +33,7 @@ public:
   Value operator()(const LogicalExpr *expr);
   Value operator()(const GetExpr *expr);
   Value operator()(const SetExpr *expr);
+  Value operator()(const ThisExpr *expr);
   Value operator()(const GroupingExpr *expr);
   Value operator()(const UnaryExpr *expr);
   Value operator()(const VariableExpr *expr);

@@ -31,6 +31,7 @@ public:
   void operator()(const LiteralExpr *expr);
   void operator()(const LogicalExpr *expr);
   void operator()(const SetExpr *expr);
+  void operator()(const ThisExpr *expr);
   void operator()(const UnaryExpr *expr);
   void operator()(const VariableExpr *expr);
 

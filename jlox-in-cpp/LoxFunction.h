@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "Environment.h"
 #include "LoxCallable.h"
 
@@ -8,6 +10,12 @@ public:
   LoxFunction(const FunctionStmt &declaration,
               const std::shared_ptr<Environment> &closure)
       : declaration(declaration), closure(closure) {}
+
+  Value bind(std::shared_ptr<class LoxInstance> &&instance) const {
+    auto env = std::make_shared<Environment>(closure);
+    env->define("this", std::move(instance));
+    return std::make_shared<const LoxFunction>(declaration, env);
+  }
 
   size_t arity() const override { return declaration.params.size(); }
 

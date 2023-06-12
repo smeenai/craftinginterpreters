@@ -43,6 +43,7 @@ add_executable(
   Error.cpp
   Interpreter.cpp
   Lox.cpp
+  LoxClass.cpp
   Parser.cpp
   Resolver.cpp
   Scanner.cpp
