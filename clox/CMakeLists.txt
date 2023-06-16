@@ -7,5 +7,6 @@ add_executable(
   main.c
   memory.c
   value.c
+  vm.c
   )
 set_target_flags(clox)
