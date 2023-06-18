@@ -1,8 +1,4 @@
-// I contemplated using a proper sum type, but each token has some common information (e.g. the
-// line and lexeme), so it seemed more ergonomic to have a simple enum and struct instead.
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum TokenType {
+pub enum TokenType<'a> {
     // Single-character tokens.
     LeftParen,
     RightParen,
@@ -28,8 +24,8 @@ pub enum TokenType {
 
     // Literals.
     Identifier,
-    String,
-    Number,
+    String(&'a str),
+    Number(f64),
 
     // Keywords.
     And,
@@ -50,4 +46,10 @@ pub enum TokenType {
     While,
 
     Eof,
+}
+
+impl<'a> TokenType<'a> {
+    pub fn is_variant(&self, variant: &TokenType) -> bool {
+        std::mem::discriminant(self) == std::mem::discriminant(variant)
+    }
 }

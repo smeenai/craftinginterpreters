@@ -2,8 +2,8 @@ use std::iter::Peekable;
 use std::slice::Iter;
 
 use crate::error;
-use crate::expr::{Expr, Literal as ExprLiteral};
-use crate::token::{Literal as TokenLiteral, Token};
+use crate::expr::{Expr, Literal};
+use crate::token::Token;
 use crate::token_type::TokenType;
 
 pub struct Parser<'a> {
@@ -83,21 +83,11 @@ impl<'a> Parser<'a> {
     fn primary(&mut self) -> ExprResult<'a> {
         let token = self.peek();
         let literal = match token.r#type {
-            TokenType::False => Some(Box::new(Expr::Literal(ExprLiteral::Bool(false)))),
-            TokenType::True => Some(Box::new(Expr::Literal(ExprLiteral::Bool(true)))),
-            TokenType::Nil => Some(Box::new(Expr::Literal(ExprLiteral::Nil))),
-            TokenType::Number => match token.literal {
-                TokenLiteral::Number(number) => {
-                    Some(Box::new(Expr::Literal(ExprLiteral::Number(number))))
-                }
-                _ => panic!("Number token should have number literal"),
-            },
-            TokenType::String => match token.literal {
-                TokenLiteral::String(string) => {
-                    Some(Box::new(Expr::Literal(ExprLiteral::String(string))))
-                }
-                _ => panic!("String token should have string literal"),
-            },
+            TokenType::False => Some(Box::new(Expr::Literal(Literal::Bool(false)))),
+            TokenType::True => Some(Box::new(Expr::Literal(Literal::Bool(true)))),
+            TokenType::Nil => Some(Box::new(Expr::Literal(Literal::Nil))),
+            TokenType::Number(number) => Some(Box::new(Expr::Literal(Literal::Number(number)))),
+            TokenType::String(string) => Some(Box::new(Expr::Literal(Literal::String(string)))),
             _ => None,
         };
         if let Some(literal) = literal {
@@ -107,7 +97,7 @@ impl<'a> Parser<'a> {
 
         if self.r#match(&[TokenType::LeftParen]).is_some() {
             let expr = self.expression()?;
-            self.consume(TokenType::RightParen, "Expect ')' after expression.")?;
+            self.consume(&TokenType::RightParen, "Expect ')' after expression.")?;
             return Ok(Box::new(Expr::Grouping(expr)));
         }
 
@@ -117,8 +107,11 @@ impl<'a> Parser<'a> {
     }
 
     fn r#match(&mut self, types: &[TokenType]) -> Option<&'a Token<'a>> {
-        for &token_type in types {
-            if let Some(token) = self.current.next_if(|&token| token.r#type == token_type) {
+        for r#type in types {
+            if let Some(token) = self
+                .current
+                .next_if(|&token| token.r#type.is_variant(r#type))
+            {
                 return Some(token);
             }
         }
@@ -126,12 +119,8 @@ impl<'a> Parser<'a> {
         None
     }
 
-    fn consume(
-        &mut self,
-        token_type: TokenType,
-        message: &str,
-    ) -> Result<&'a Token<'a>, ParseError> {
-        if self.check(token_type) {
+    fn consume(&mut self, r#type: &TokenType, message: &str) -> Result<&'a Token<'a>, ParseError> {
+        if self.check(r#type) {
             return Ok(self.advance());
         }
 
@@ -140,22 +129,22 @@ impl<'a> Parser<'a> {
         Err(ParseError)
     }
 
-    fn check(&mut self, token_type: TokenType) -> bool {
+    fn check(&mut self, r#type: &TokenType) -> bool {
         if self.is_at_end() {
             return false;
         }
 
-        self.peek().r#type == token_type
+        self.peek().r#type.is_variant(r#type)
     }
 
     fn advance(&mut self) -> &'a Token<'a> {
         self.current
-            .next_if(|&token| token.r#type != TokenType::Eof)
+            .next_if(|&token| !matches!(token.r#type, TokenType::Eof))
             .expect("Should not advance past EOF")
     }
 
     fn is_at_end(&mut self) -> bool {
-        self.peek().r#type == TokenType::Eof
+        matches!(self.peek().r#type, TokenType::Eof)
     }
 
     fn peek(&mut self) -> &'a Token<'a> {
@@ -170,7 +159,7 @@ impl<'a> Parser<'a> {
         let mut previous = self.advance();
 
         while !self.is_at_end() {
-            if previous.r#type == TokenType::Semicolon {
+            if matches!(previous.r#type, TokenType::Semicolon) {
                 return;
             }
 

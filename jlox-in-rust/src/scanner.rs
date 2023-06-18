@@ -1,5 +1,5 @@
 use crate::error;
-use crate::token::{Literal, Token};
+use crate::token::Token;
 use crate::token_type::TokenType;
 
 pub struct Scanner<'a> {
@@ -36,7 +36,6 @@ impl<'a> Scanner<'a> {
         tokens.push(Token {
             r#type: TokenType::Eof,
             lexeme: "",
-            literal: Literal::None,
             line: 0,
         });
         tokens
@@ -45,16 +44,16 @@ impl<'a> Scanner<'a> {
     fn scan_token(&mut self) -> Option<Token<'a>> {
         let c = self.advance();
         match c {
-            b'(' => Some(self.add_token(TokenType::LeftParen, Literal::None)),
-            b')' => Some(self.add_token(TokenType::RightParen, Literal::None)),
-            b'{' => Some(self.add_token(TokenType::LeftBrace, Literal::None)),
-            b'}' => Some(self.add_token(TokenType::RightBrace, Literal::None)),
-            b',' => Some(self.add_token(TokenType::Comma, Literal::None)),
-            b'.' => Some(self.add_token(TokenType::Dot, Literal::None)),
-            b'-' => Some(self.add_token(TokenType::Minus, Literal::None)),
-            b'+' => Some(self.add_token(TokenType::Plus, Literal::None)),
-            b';' => Some(self.add_token(TokenType::Semicolon, Literal::None)),
-            b'*' => Some(self.add_token(TokenType::Star, Literal::None)),
+            b'(' => Some(self.add_token(TokenType::LeftParen)),
+            b')' => Some(self.add_token(TokenType::RightParen)),
+            b'{' => Some(self.add_token(TokenType::LeftBrace)),
+            b'}' => Some(self.add_token(TokenType::RightBrace)),
+            b',' => Some(self.add_token(TokenType::Comma)),
+            b'.' => Some(self.add_token(TokenType::Dot)),
+            b'-' => Some(self.add_token(TokenType::Minus)),
+            b'+' => Some(self.add_token(TokenType::Plus)),
+            b';' => Some(self.add_token(TokenType::Semicolon)),
+            b'*' => Some(self.add_token(TokenType::Star)),
 
             b'!' => {
                 let token_type = if self.r#match(b'=') {
@@ -62,7 +61,7 @@ impl<'a> Scanner<'a> {
                 } else {
                     TokenType::Bang
                 };
-                Some(self.add_token(token_type, Literal::None))
+                Some(self.add_token(token_type))
             }
 
             b'=' => {
@@ -71,7 +70,7 @@ impl<'a> Scanner<'a> {
                 } else {
                     TokenType::Equal
                 };
-                Some(self.add_token(token_type, Literal::None))
+                Some(self.add_token(token_type))
             }
 
             b'<' => {
@@ -80,7 +79,7 @@ impl<'a> Scanner<'a> {
                 } else {
                     TokenType::Less
                 };
-                Some(self.add_token(token_type, Literal::None))
+                Some(self.add_token(token_type))
             }
 
             b'>' => {
@@ -89,7 +88,7 @@ impl<'a> Scanner<'a> {
                 } else {
                     TokenType::Greater
                 };
-                Some(self.add_token(token_type, Literal::None))
+                Some(self.add_token(token_type))
             }
 
             b'/' => {
@@ -100,7 +99,7 @@ impl<'a> Scanner<'a> {
                     }
                     None
                 } else {
-                    Some(self.add_token(TokenType::Slash, Literal::None))
+                    Some(self.add_token(TokenType::Slash))
                 }
             }
 
@@ -149,7 +148,7 @@ impl<'a> Scanner<'a> {
             "while" => TokenType::While,
             _ => TokenType::Identifier,
         };
-        Some(self.add_token(token_type, Literal::None))
+        Some(self.add_token(token_type))
     }
 
     fn number(&mut self) -> Option<Token<'a>> {
@@ -168,7 +167,7 @@ impl<'a> Scanner<'a> {
         }
 
         let number: f64 = self.source_str[self.start..self.current].parse().unwrap();
-        Some(self.add_token(TokenType::Number, Literal::Number(number)))
+        Some(self.add_token(TokenType::Number(number)))
     }
 
     fn string(&mut self) -> Option<Token<'a>> {
@@ -189,7 +188,7 @@ impl<'a> Scanner<'a> {
 
         // Trim the surrounding quotes.
         let value = &self.source_str[self.start + 1..self.current - 1];
-        Some(self.add_token(TokenType::String, Literal::String(value)))
+        Some(self.add_token(TokenType::String(value)))
     }
 
     fn r#match(&mut self, expected: u8) -> bool {
@@ -223,11 +222,10 @@ impl<'a> Scanner<'a> {
         c
     }
 
-    fn add_token(&self, token_type: TokenType, literal: Literal<'a>) -> Token<'a> {
+    fn add_token(&self, token_type: TokenType<'a>) -> Token<'a> {
         Token {
             r#type: token_type,
             lexeme: &self.source_str[self.start..self.current],
-            literal,
             line: self.line,
         }
     }
