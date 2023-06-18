@@ -9,7 +9,7 @@ pub enum Literal<'a> {
 }
 
 pub struct Token<'a> {
-    pub token_type: TokenType,
+    pub r#type: TokenType,
     pub lexeme: &'a str,
     pub literal: Literal<'a>,
     pub line: u32,
@@ -26,6 +26,6 @@ impl<'a> fmt::Display for Token<'a> {
             }
             Literal::String(string) => string,
         };
-        write!(f, "{:?} {} {literal_str}", self.token_type, self.lexeme)
+        write!(f, "{:?} {} {literal_str}", self.r#type, self.lexeme)
     }
 }

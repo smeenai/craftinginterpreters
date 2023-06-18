@@ -34,7 +34,7 @@ impl<'a> Scanner<'a> {
         }
 
         tokens.push(Token {
-            token_type: TokenType::Eof,
+            r#type: TokenType::Eof,
             lexeme: "",
             literal: Literal::None,
             line: 0,
@@ -225,7 +225,7 @@ impl<'a> Scanner<'a> {
 
     fn add_token(&self, token_type: TokenType, literal: Literal<'a>) -> Token<'a> {
         Token {
-            token_type,
+            r#type: token_type,
             lexeme: &self.source_str[self.start..self.current],
             literal,
             line: self.line,

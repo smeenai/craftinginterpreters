@@ -9,7 +9,7 @@ pub fn error(line: u32, message: &str) {
 }
 
 pub fn error_at_token(token: &Token, message: &str) {
-    if token.token_type == TokenType::Eof {
+    if token.r#type == TokenType::Eof {
         report(token.line, " at end", message);
     } else {
         report(token.line, &format!(" at '{}'", token.lexeme), message);

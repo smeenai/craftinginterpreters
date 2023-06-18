@@ -82,7 +82,7 @@ impl<'a> Parser<'a> {
 
     fn primary(&mut self) -> ExprResult<'a> {
         let token = self.peek();
-        let literal = match token.token_type {
+        let literal = match token.r#type {
             TokenType::False => Some(Box::new(Expr::Literal(ExprLiteral::Bool(false)))),
             TokenType::True => Some(Box::new(Expr::Literal(ExprLiteral::Bool(true)))),
             TokenType::Nil => Some(Box::new(Expr::Literal(ExprLiteral::Nil))),
@@ -118,10 +118,7 @@ impl<'a> Parser<'a> {
 
     fn r#match(&mut self, types: &[TokenType]) -> Option<&'a Token<'a>> {
         for &token_type in types {
-            if let Some(token) = self
-                .current
-                .next_if(|&token| token.token_type == token_type)
-            {
+            if let Some(token) = self.current.next_if(|&token| token.r#type == token_type) {
                 return Some(token);
             }
         }
@@ -148,17 +145,17 @@ impl<'a> Parser<'a> {
             return false;
         }
 
-        self.peek().token_type == token_type
+        self.peek().r#type == token_type
     }
 
     fn advance(&mut self) -> &'a Token<'a> {
         self.current
-            .next_if(|&token| token.token_type != TokenType::Eof)
+            .next_if(|&token| token.r#type != TokenType::Eof)
             .expect("Should not advance past EOF")
     }
 
     fn is_at_end(&mut self) -> bool {
-        self.peek().token_type == TokenType::Eof
+        self.peek().r#type == TokenType::Eof
     }
 
     fn peek(&mut self) -> &'a Token<'a> {
@@ -173,11 +170,11 @@ impl<'a> Parser<'a> {
         let mut previous = self.advance();
 
         while !self.is_at_end() {
-            if previous.token_type == TokenType::Semicolon {
+            if previous.r#type == TokenType::Semicolon {
                 return;
             }
 
-            match self.peek().token_type {
+            match self.peek().r#type {
                 TokenType::Class => return,
                 TokenType::Fun => return,
                 TokenType::Var => return,
