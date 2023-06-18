@@ -10,7 +10,6 @@ mod expr;
 mod parser;
 mod scanner;
 mod token;
-mod token_type;
 
 use crate::parser::Parser;
 use crate::scanner::Scanner;

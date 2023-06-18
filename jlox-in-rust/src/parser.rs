@@ -3,8 +3,7 @@ use std::slice::Iter;
 
 use crate::error;
 use crate::expr::{Expr, Literal};
-use crate::token::Token;
-use crate::token_type::TokenType;
+use crate::token::{Token, TokenType};
 
 pub struct Parser<'a> {
     current: Peekable<Iter<'a, Token<'a>>>,

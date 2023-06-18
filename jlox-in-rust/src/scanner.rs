@@ -1,6 +1,5 @@
 use crate::error;
-use crate::token::Token;
-use crate::token_type::TokenType;
+use crate::token::{Token, TokenType};
 
 pub struct Scanner<'a> {
     // All the tokens we're scanning for are ASCII, so we can iterate much more simply and

@@ -1,5 +1,4 @@
-use crate::token::Token;
-use crate::token_type::TokenType;
+use crate::token::{Token, TokenType};
 
 // We're single-threaded, so accessing this is safe even though it requires unsafe blocks.
 static mut HAD_ERROR: bool = false;
