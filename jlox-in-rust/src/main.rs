@@ -5,6 +5,7 @@ use std::io::Write;
 use std::process::ExitCode;
 
 mod error;
+mod expr;
 mod scanner;
 mod token;
 mod token_type;
