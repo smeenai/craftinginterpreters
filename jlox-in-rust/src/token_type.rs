@@ -1,7 +1,7 @@
 // I contemplated using a proper sum type, but each token has some common information (e.g. the
 // line and lexeme), so it seemed more ergonomic to have a simple enum and struct instead.
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum TokenType {
     // Single-character tokens.
     LeftParen,

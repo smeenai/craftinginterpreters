@@ -1,8 +1,19 @@
+use crate::token::Token;
+use crate::token_type::TokenType;
+
 // We're single-threaded, so accessing this is safe even though it requires unsafe blocks.
 static mut HAD_ERROR: bool = false;
 
 pub fn error(line: u32, message: &str) {
     report(line, "", message);
+}
+
+pub fn error_at_token(token: &Token, message: &str) {
+    if token.token_type == TokenType::Eof {
+        report(token.line, " at end", message);
+    } else {
+        report(token.line, &format!(" at '{}'", token.lexeme), message);
+    }
 }
 
 pub fn had_error() -> bool {
