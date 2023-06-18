@@ -4,6 +4,7 @@ use std::io;
 use std::io::Write;
 use std::process::ExitCode;
 
+mod ast_printer;
 mod error;
 mod expr;
 mod parser;
@@ -11,6 +12,7 @@ mod scanner;
 mod token;
 mod token_type;
 
+use crate::parser::Parser;
 use crate::scanner::Scanner;
 
 fn main() -> ExitCode {
@@ -62,7 +64,8 @@ fn run_prompt() {
 fn run(source: &str) {
     let mut scanner = Scanner::new(source);
     let tokens = scanner.scan_tokens();
-    for token in tokens {
-        println!("{token}");
+    let mut parser = Parser::new(&tokens);
+    if let Some(expr) = parser.parse() {
+        ast_printer::println(&expr);
     }
 }
