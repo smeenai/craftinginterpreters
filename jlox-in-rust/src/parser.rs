@@ -135,12 +135,12 @@ impl<'a> Parser<'a> {
         message: &str,
     ) -> Result<&'a Token<'a>, ParseError> {
         if self.check(token_type) {
-            Ok(self.advance())
-        } else {
-            let token = self.peek();
-            self.error(token, message);
-            Err(ParseError)
+            return Ok(self.advance());
         }
+
+        let token = self.peek();
+        self.error(token, message);
+        Err(ParseError)
     }
 
     fn check(&mut self, token_type: TokenType) -> bool {
