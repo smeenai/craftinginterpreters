@@ -1,4 +1,4 @@
-use crate::token::Token;
+use crate::token::{BinaryToken, UnaryToken};
 
 pub enum Literal<'a> {
     Nil,
@@ -8,8 +8,8 @@ pub enum Literal<'a> {
 }
 
 pub enum Expr<'a> {
-    Binary(Box<Expr<'a>>, &'a Token<'a>, Box<Expr<'a>>),
+    Binary(Box<Expr<'a>>, BinaryToken, Box<Expr<'a>>),
     Grouping(Box<Expr<'a>>),
     Literal(Literal<'a>),
-    Unary(&'a Token<'a>, Box<Expr<'a>>),
+    Unary(UnaryToken, Box<Expr<'a>>),
 }

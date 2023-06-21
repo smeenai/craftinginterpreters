@@ -3,7 +3,7 @@ use std::slice::Iter;
 
 use crate::error;
 use crate::expr::{Expr, Literal};
-use crate::token::{Token, TokenType};
+use crate::token::{BinaryToken, BinaryTokenType, Token, TokenType, UnaryToken, UnaryTokenType};
 
 pub struct Parser<'a> {
     current: Peekable<Iter<'a, Token<'a>>>,
@@ -31,7 +31,7 @@ impl<'a> Parser<'a> {
     fn equality(&mut self) -> ExprResult<'a> {
         self.binary(
             Self::comparison,
-            &[TokenType::BangEqual, TokenType::EqualEqual],
+            &[BinaryTokenType::BangEqual, BinaryTokenType::EqualEqual],
         )
     }
 
@@ -39,41 +39,62 @@ impl<'a> Parser<'a> {
         self.binary(
             Self::term,
             &[
-                TokenType::Greater,
-                TokenType::GreaterEqual,
-                TokenType::Less,
-                TokenType::LessEqual,
+                BinaryTokenType::Greater,
+                BinaryTokenType::GreaterEqual,
+                BinaryTokenType::Less,
+                BinaryTokenType::LessEqual,
             ],
         )
     }
 
     fn term(&mut self) -> ExprResult<'a> {
-        self.binary(Self::factor, &[TokenType::Minus, TokenType::Plus])
+        self.binary(
+            Self::factor,
+            &[BinaryTokenType::Minus, BinaryTokenType::Plus],
+        )
     }
 
     fn factor(&mut self) -> ExprResult<'a> {
-        self.binary(Self::unary, &[TokenType::Slash, TokenType::Star])
+        self.binary(
+            Self::unary,
+            &[BinaryTokenType::Slash, BinaryTokenType::Star],
+        )
     }
 
     fn binary(
         &mut self,
         next: fn(&mut Self) -> ExprResult<'a>,
-        types: &[TokenType],
+        types: &[BinaryTokenType],
     ) -> ExprResult<'a> {
         let mut expr = next(self)?;
 
-        while let Some(operator) = self.r#match(types) {
+        while let Some((r#type, operator)) = self.match_with_type(types) {
             let right = next(self)?;
-            expr = Box::new(Expr::Binary(expr, operator, right));
+            expr = Box::new(Expr::Binary(
+                expr,
+                BinaryToken {
+                    r#type,
+                    line: operator.line,
+                },
+                right,
+            ));
         }
 
         Ok(expr)
     }
 
     fn unary(&mut self) -> ExprResult<'a> {
-        if let Some(operator) = self.r#match(&[TokenType::Bang, TokenType::Minus]) {
+        if let Some((r#type, operator)) =
+            self.match_with_type(&[UnaryTokenType::Bang, UnaryTokenType::Minus])
+        {
             let right = self.unary()?;
-            return Ok(Box::new(Expr::Unary(operator, right)));
+            return Ok(Box::new(Expr::Unary(
+                UnaryToken {
+                    r#type,
+                    line: operator.line,
+                },
+                right,
+            )));
         }
 
         self.primary()
@@ -105,13 +126,25 @@ impl<'a> Parser<'a> {
         Err(ParseError)
     }
 
-    fn r#match(&mut self, types: &[TokenType]) -> Option<&'a Token<'a>> {
-        for r#type in types {
-            if let Some(token) = self
-                .current
-                .next_if(|&token| token.r#type.is_variant(r#type))
-            {
-                return Some(token);
+    fn r#match<T: PartialEq<TokenType<'a>>>(&mut self, types: &[T]) -> Option<&'a Token<'a>> {
+        self.match_with_index(types).map(|pair| pair.1)
+    }
+
+    fn match_with_type<T: Copy + PartialEq<TokenType<'a>>>(
+        &mut self,
+        types: &[T],
+    ) -> Option<(T, &'a Token<'a>)> {
+        self.match_with_index(types)
+            .map(|(index, token)| (types[index], token))
+    }
+
+    fn match_with_index<T: PartialEq<TokenType<'a>>>(
+        &mut self,
+        types: &[T],
+    ) -> Option<(usize, &'a Token<'a>)> {
+        for (index, r#type) in types.iter().enumerate() {
+            if let Some(token) = self.current.next_if(|&token| r#type == &token.r#type) {
+                return Some((index, token));
             }
         }
 
@@ -133,7 +166,7 @@ impl<'a> Parser<'a> {
             return false;
         }
 
-        self.peek().r#type.is_variant(r#type)
+        &self.peek().r#type == r#type
     }
 
     fn advance(&mut self) -> &'a Token<'a> {
