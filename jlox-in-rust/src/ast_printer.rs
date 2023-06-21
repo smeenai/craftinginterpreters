@@ -10,7 +10,7 @@ fn print(expr: &Expr) {
         Expr::Binary(left, op, right) => parenthesize(op.lexeme, &[left, right]),
         Expr::Grouping(expr) => parenthesize("group", &[expr]),
         Expr::Literal(value) => match value {
-            Literal::Bool(boolean) => print!("{boolean}"),
+            Literal::Boolean(boolean) => print!("{boolean}"),
             Literal::Nil => print!("nil"),
             Literal::Number(number) => print!("{number}"),
             Literal::String(string) => print!("{string}"),

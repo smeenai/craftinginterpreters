@@ -82,8 +82,8 @@ impl<'a> Parser<'a> {
     fn primary(&mut self) -> ExprResult<'a> {
         let token = self.peek();
         let literal = match token.r#type {
-            TokenType::False => Some(Box::new(Expr::Literal(Literal::Bool(false)))),
-            TokenType::True => Some(Box::new(Expr::Literal(Literal::Bool(true)))),
+            TokenType::False => Some(Box::new(Expr::Literal(Literal::Boolean(false)))),
+            TokenType::True => Some(Box::new(Expr::Literal(Literal::Boolean(true)))),
             TokenType::Nil => Some(Box::new(Expr::Literal(Literal::Nil))),
             TokenType::Number(number) => Some(Box::new(Expr::Literal(Literal::Number(number)))),
             TokenType::String(string) => Some(Box::new(Expr::Literal(Literal::String(string)))),

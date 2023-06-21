@@ -2,7 +2,7 @@ use crate::token::Token;
 
 pub enum Literal<'a> {
     Nil,
-    Bool(bool),
+    Boolean(bool),
     Number(f64),
     String(&'a str),
 }
