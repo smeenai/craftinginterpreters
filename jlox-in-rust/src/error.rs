@@ -1,7 +1,8 @@
 use crate::token::{Token, TokenType};
 
-// We're single-threaded, so accessing this is safe even though it requires unsafe blocks.
+// We're single-threaded, so accessing these is safe even though it requires unsafe blocks.
 static mut HAD_ERROR: bool = false;
+static mut HAD_RUNTIME_ERROR: bool = false;
 
 pub fn error(line: u32, message: &str) {
     report(line, "", message);
@@ -15,13 +16,26 @@ pub fn error_at_token(token: &Token, message: &str) {
     }
 }
 
+pub fn runtime_error(message: &str, line: u32) {
+    eprintln!("{message}\n[line {line}]");
+    // We're single-threaded so this is fine
+    unsafe {
+        HAD_RUNTIME_ERROR = true;
+    }
+}
+
 pub fn had_error() -> bool {
     unsafe { HAD_ERROR }
+}
+
+pub fn had_runtime_error() -> bool {
+    unsafe { HAD_RUNTIME_ERROR }
 }
 
 pub fn clear_error() {
     unsafe {
         HAD_ERROR = false;
+        HAD_RUNTIME_ERROR = false;
     }
 }
 

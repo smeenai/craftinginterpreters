@@ -7,9 +7,13 @@ use std::process::ExitCode;
 mod ast_printer;
 mod error;
 mod expr;
+mod interpreter;
 mod parser;
 mod scanner;
 mod token;
+mod value;
+
+use interpreter::Interpreter;
 
 use crate::parser::Parser;
 use crate::scanner::Scanner;
@@ -36,6 +40,8 @@ fn run_file(path: &str) -> ExitCode {
 
     if error::had_error() {
         ExitCode::from(65)
+    } else if error::had_runtime_error() {
+        ExitCode::from(70)
     } else {
         ExitCode::SUCCESS
     }
@@ -64,7 +70,13 @@ fn run(source: &str) {
     let mut scanner = Scanner::new(source);
     let tokens = scanner.scan_tokens();
     let mut parser = Parser::new(&tokens);
-    if let Some(expr) = parser.parse() {
-        ast_printer::println(&expr);
+    let expr = parser.parse();
+
+    // Stop if there was a syntax error.
+    if error::had_error() {
+        return;
     }
+
+    let interpreter = Interpreter::new();
+    interpreter.interpret(&expr.expect("Should have expression if there was no syntax error"))
 }
