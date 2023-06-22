@@ -4,7 +4,6 @@ use std::io;
 use std::io::Write;
 use std::process::ExitCode;
 
-mod ast_printer;
 mod error;
 mod expr;
 mod interpreter;
