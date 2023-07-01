@@ -2,12 +2,12 @@
 
 #include <stdio.h>
 
+#include "compiler.h"
 #include "debug.h"
 
 static VM vm;
 
 static void resetStack() { vm.stackTop = vm.stack; }
-
 void initVM() { resetStack(); }
 
 void freeVM() {}
@@ -78,8 +78,8 @@ static InterpretResult run() {
 #undef BINARY_OP
 }
 
-InterpretResult interpret(Chunk *chunk) {
-  vm.chunk = chunk;
-  vm.ip = vm.chunk->code;
-  return run();
+InterpretResult interpret(const char *source) {
+  compile(source);
+  (void)run;
+  return INTERPRET_OK;
 }
