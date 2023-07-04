@@ -80,6 +80,21 @@ static InterpretResult run() {
       push(boolVal(false));
       break;
 
+    case OP_EQUAL: {
+      Value a = pop();
+      Value b = pop();
+      push(boolVal(valuesEqual(a, b)));
+      break;
+    }
+
+    case OP_GREATER:
+      BINARY_OP(boolVal, >);
+      break;
+
+    case OP_LESS:
+      BINARY_OP(boolVal, <);
+      break;
+
     case OP_ADD:
       BINARY_OP(numberVal, +);
       break;
