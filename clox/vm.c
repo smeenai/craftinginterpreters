@@ -5,6 +5,7 @@
 
 #include "compiler.h"
 #include "debug.h"
+#include "object.h"
 
 static VM vm;
 
@@ -36,19 +37,30 @@ static bool isFalsey(Value value) {
   return isNil(value) || (isBool(value) && !asBool(value));
 }
 
+static void concatenate() {
+  ObjString *b = asString(pop());
+  ObjString *a = asString(pop());
+  ObjString *result = concatenateStrings(a, b);
+  push(objVal((Obj *)result));
+}
+
 static InterpretResult run() {
 #define READ_BYTE() (*vm.ip++)
 #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
-#define BINARY_OP(valueType, op)                                               \
+
+#define BINARY_OP_WITH_ERROR(valueType, op, typeErrorMessage)                  \
   do {                                                                         \
     if (!isNumber(peek(0)) || !isNumber(peek(1))) {                            \
-      runtimeError("Operands must be numbers.");                               \
+      runtimeError(typeErrorMessage);                                          \
       return INTERPRET_RUNTIME_ERROR;                                          \
     }                                                                          \
     double b = asNumber(pop());                                                \
     double a = asNumber(pop());                                                \
     push(valueType(a op b));                                                   \
   } while (false)
+
+#define BINARY_OP(valueType, op)                                               \
+  BINARY_OP_WITH_ERROR(valueType, op, "Operands must be numbers.")
 
   while (true) {
 #ifdef DEBUG_TRACE_EXECUTION
@@ -96,7 +108,11 @@ static InterpretResult run() {
       break;
 
     case OP_ADD:
-      BINARY_OP(numberVal, +);
+      if (isString(peek(0)) && isString(peek(1)))
+        concatenate();
+      else
+        BINARY_OP_WITH_ERROR(numberVal, +,
+                             "Operands must be two numbers or two strings.");
       break;
 
     case OP_SUBTRACT:

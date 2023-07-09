@@ -4,10 +4,14 @@
 
 #include "common.h"
 
+typedef struct Obj Obj;
+typedef struct ObjString ObjString;
+
 typedef enum {
   VAL_BOOL,
   VAL_NIL,
   VAL_NUMBER,
+  VAL_OBJ,
 } ValueType;
 
 typedef struct {
@@ -15,6 +19,7 @@ typedef struct {
   union {
     bool boolean;
     double number;
+    Obj *obj;
   } as;
 } Value;
 
@@ -32,6 +37,7 @@ typedef struct {
 ALWAYS_INLINE bool isBool(Value value) { return value.type == VAL_BOOL; }
 ALWAYS_INLINE bool isNil(Value value) { return value.type == VAL_NIL; }
 ALWAYS_INLINE bool isNumber(Value value) { return value.type == VAL_NUMBER; }
+ALWAYS_INLINE bool isObj(Value value) { return value.type == VAL_OBJ; }
 
 ALWAYS_INLINE bool asBool(Value value) {
   assert(isBool(value) && "Called asBool on non-bool");
@@ -41,6 +47,10 @@ ALWAYS_INLINE double asNumber(Value value) {
   assert(isNumber(value) && "Called asNumber on non-number");
   return value.as.number;
 }
+ALWAYS_INLINE Obj *asObj(Value value) {
+  assert(isObj(value) && "Called asObj on non-Obj");
+  return value.as.obj;
+}
 
 ALWAYS_INLINE Value boolVal(bool value) {
   return (Value){VAL_BOOL, {.boolean = value}};
@@ -49,6 +59,7 @@ ALWAYS_INLINE Value nilVal() { return (Value){VAL_NIL, {.number = 0}}; }
 ALWAYS_INLINE Value numberVal(double value) {
   return (Value){VAL_NUMBER, {.number = value}};
 }
+ALWAYS_INLINE Value objVal(Obj *obj) { return (Value){VAL_OBJ, {.obj = obj}}; }
 
 #undef ALWAYS_INLINE
 
