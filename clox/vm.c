@@ -45,7 +45,7 @@ static void concatenate() {
   ObjString *b = asString(pop());
   ObjString *a = asString(pop());
   ObjString *result = concatenateStrings(a, b);
-  push(objVal((Obj *)result));
+  push(OBJ_VAL(result));
 }
 
 static InterpretResult run() {

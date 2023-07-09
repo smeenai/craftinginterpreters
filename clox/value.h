@@ -63,6 +63,8 @@ ALWAYS_INLINE Value objVal(Obj *obj) { return (Value){VAL_OBJ, {.obj = obj}}; }
 
 #undef ALWAYS_INLINE
 
+#define OBJ_VAL(obj) _Generic((obj), ObjString *: objVal((Obj *)obj))
+
 typedef struct {
   unsigned capacity;
   unsigned count;
