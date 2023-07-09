@@ -10,6 +10,8 @@
 static Obj *allocateObject(size_t size, ObjType type) {
   Obj *obj = reallocate(NULL, 0, size);
   obj->type = type;
+  obj->next = vm.objects;
+  vm.objects = obj;
   return obj;
 }
 
