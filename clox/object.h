@@ -15,6 +15,7 @@ typedef struct Obj {
 struct ObjString {
   Obj obj;
   unsigned length;
+  uint32_t hash;
   char chars[];
 };
 
