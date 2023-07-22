@@ -12,7 +12,8 @@ VM vm;
 
 static void resetStack() { vm.stackTop = vm.stack; }
 
-static void runtimeError(const char *format, ...) {
+__attribute__((format(printf, 1, 2))) static void
+runtimeError(const char *format, ...) {
   va_list(args);
   va_start(args, format);
   vfprintf(stderr, format, args);
