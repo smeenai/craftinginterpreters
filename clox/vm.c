@@ -99,6 +99,9 @@ static InterpretResult run() {
     case OP_FALSE:
       push(boolVal(false));
       break;
+    case OP_POP:
+      pop();
+      break;
 
     case OP_EQUAL: {
       Value a = pop();
@@ -147,9 +150,14 @@ static InterpretResult run() {
       push(numberVal(-asNumber(pop())));
       break;
 
-    case OP_RETURN:
+    case OP_PRINT: {
       printValue(pop());
       putchar('\n');
+      break;
+    }
+
+    case OP_RETURN:
+      // Exit interpreter.
       return INTERPRET_OK;
     }
   }
