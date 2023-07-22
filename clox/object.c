@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "memory.h"
+#include "table.h"
 #include "value.h"
 #include "vm.h"
 
@@ -34,10 +35,16 @@ static uint32_t hashString(const char *key, unsigned length) {
 }
 
 ObjString *copyString(const char *chars, unsigned length) {
+  uint32_t hash = hashString(chars, length);
+  ObjString *interned = tableFindString(&vm.strings, chars, length, hash);
+  if (interned != NULL)
+    return interned;
+
   ObjString *string = allocateString(length);
   memcpy(string->chars, chars, length);
   string->chars[length] = '\0';
-  string->hash = hashString(chars, length);
+  string->hash = hash;
+  tableSet(&vm.strings, string, nilVal());
   return string;
 }
 
@@ -49,6 +56,19 @@ ObjString *concatenateStrings(ObjString *a, ObjString *b) {
   memcpy(string->chars + a->length, b->chars, b->length);
   string->chars[length] = '\0';
   string->hash = hashString(string->chars, length);
+
+  ObjString *interned =
+      tableFindString(&vm.strings, string->chars, length, string->hash);
+  if (interned != NULL) {
+    // TODO: Should we just let the garbage collector do this instead later?
+    assert(vm.objects == (Obj *)string);
+    vm.objects = vm.objects->next;
+    reallocate(string, sizeof(ObjString) + length + 1, 0);
+
+    return interned;
+  }
+
+  tableSet(&vm.strings, string, nilVal());
   return string;
 }
 

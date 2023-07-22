@@ -57,11 +57,7 @@ bool valuesEqual(Value a, Value b) {
     return true;
   case VAL_NUMBER:
     return asNumber(a) == asNumber(b);
-  case VAL_OBJ: {
-    ObjString *aString = asString(a);
-    ObjString *bString = asString(b);
-    return aString->length == bString->length &&
-           memcmp(aString->chars, bString->chars, aString->length) == 0;
-  }
+  case VAL_OBJ:
+    return asObj(a) == asObj(b);
   }
 }

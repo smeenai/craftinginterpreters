@@ -118,3 +118,25 @@ void tableAddAll(Table *from, Table *to) {
       tableSet(to, entry->key, entry->value);
   }
 }
+
+ObjString *tableFindString(Table *table, const char *chars, unsigned length,
+                           uint32_t hash) {
+  if (table->count == 0)
+    return NULL;
+
+  uint32_t index = hash % table->capacity;
+  while (true) {
+    Entry *entry = &table->entries[index];
+    if (entry->key == NULL) {
+      // Stop if we find an empty non-tombstone entry.
+      if (isNil(entry->value))
+        return NULL;
+    } else if (entry->key->length == length && entry->key->hash == hash &&
+               memcmp(entry->key->chars, chars, length) == 0) {
+      // We found it.
+      return entry->key;
+    }
+
+    index = (index + 1) % table->capacity;
+  }
+}
